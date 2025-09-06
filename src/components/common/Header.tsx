@@ -53,7 +53,7 @@ export function Header({ role }: HeaderProps) {
               <span className="text-lg">ClassZen</span>
             </Link>
           </div>
-          <MobileNav />
+          {role === 'Teacher' && <MobileNav />}
         </SheetContent>
       </Sheet>
 
@@ -80,6 +80,14 @@ export function Header({ role }: HeaderProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
+           {role === 'Student' && (
+            <DropdownMenuItem asChild>
+              <Link href="/student/profile">
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem>
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
