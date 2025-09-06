@@ -72,7 +72,7 @@ export default function AirbnbPage() {
                     {/* Desktop Header */}
                     <div className="hidden md:flex items-center justify-between h-20">
                         <Link href="#" className="flex items-center gap-2">
-                             <svg width="32" height="32" viewBox="0 0 1024 1024" fill="currentColor" aria-hidden="true" role="presentation" focusable="false" className="text-primary"><path d="M512 0C229.2 0 0 229.2 0 512s229.2 512 512 512 512-229.2 512-512S794.8 0 512 0z m298.8 479.2c-2.8 1.6-63.6 37.2-111.2 64.8-48.8 28-84 50-84 81.2 0 22.8 21.6 34.4 52.4 34.4 20.4 0 42.4-5.6 63.6-14 31.6-12.8 55.6-20.8 74.4-20.8 26 0 46 14.8 46 45.6 0 25.2-11.2 41.2-30.8 52.4-28.4 16.4-66 26.8-112 26.8-62.4 0-113.6-22-154.8-65.6-28.8-31.2-43.2-69.2-43.2-114 0-59.2 32-106 96.4-139.6 44.8-23.2 101.2-44.4 102-44.8 1.2-.8 2.4-.8 3.6 0z m-112-162c-24.8 0-45.2 20.4-45.2 45.2s20.4 45.2 45.2 45.2 45.2-20.4 45.2-45.2-20.4-45.2-45.2-45.2z"></path></svg>
+                             <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true" role="presentation" focusable="false" className="text-primary"><path d="M16 32c8.837 0 16-7.163 16-16S24.837 0 16 0 0 7.163 0 16s7.163 16 16 16zm0-2c-7.732 0-14-6.268-14-14S8.268 2 16 2s14 6.268 14 14-6.268 14-14 14z m0-2.5c-6.351 0-11.5-5.149-11.5-11.5S9.649 4.5 16 4.5s11.5 5.149 11.5 11.5-5.149 11.5-11.5 11.5z m0-2c-5.247 0-9.5-4.253-9.5-9.5s4.253-9.5 9.5-9.5 9.5 4.253 9.5 9.5-4.253 9.5-9.5 9.5z m0-16c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5 6.5-2.91 6.5-6.5-2.91-6.5-6.5-6.5z"></path></svg>
                              <span className="font-bold text-2xl text-primary">airbnb</span>
                         </Link>
                         <div className="flex-1 flex justify-center">
@@ -90,7 +90,7 @@ export default function AirbnbPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
-                            <Button variant="ghost" className="rounded-full font-semibold">Become a Host</Button>
+                            <Button variant="ghost" className="rounded-full font-semibold">Airbnb your home</Button>
                             <Button variant="ghost" size="icon" className="rounded-full">
                                 <Globe className="h-5 w-5" />
                             </Button>
@@ -107,7 +107,7 @@ export default function AirbnbPage() {
                     <div className="md:hidden flex items-center justify-between h-16">
                          <div className="flex-1">
                            <Link href="#" className="flex items-center gap-2">
-                             <svg width="32" height="32" viewBox="0 0 1024 1024" fill="currentColor" aria-hidden="true" role="presentation" focusable="false" className="text-primary"><path d="M512 0C229.2 0 0 229.2 0 512s229.2 512 512 512 512-229.2 512-512S794.8 0 512 0z m298.8 479.2c-2.8 1.6-63.6 37.2-111.2 64.8-48.8 28-84 50-84 81.2 0 22.8 21.6 34.4 52.4 34.4 20.4 0 42.4-5.6 63.6-14 31.6-12.8 55.6-20.8 74.4-20.8 26 0 46 14.8 46 45.6 0 25.2-11.2 41.2-30.8 52.4-28.4 16.4-66 26.8-112 26.8-62.4 0-113.6-22-154.8-65.6-28.8-31.2-43.2-69.2-43.2-114 0-59.2 32-106 96.4-139.6 44.8-23.2 101.2-44.4 102-44.8 1.2-.8 2.4-.8 3.6 0z m-112-162c-24.8 0-45.2 20.4-45.2 45.2s20.4 45.2 45.2 45.2 45.2-20.4 45.2-45.2-20.4-45.2-45.2-45.2z"></path></svg>
+                             <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true" role="presentation" focusable="false" className="text-primary"><path d="M16 32c8.837 0 16-7.163 16-16S24.837 0 16 0 0 7.163 0 16s7.163 16 16 16zm0-2c-7.732 0-14-6.268-14-14S8.268 2 16 2s14 6.268 14 14-6.268 14-14 14z m0-2.5c-6.351 0-11.5-5.149-11.5-11.5S9.649 4.5 16 4.5s11.5 5.149 11.5 11.5-5.149 11.5-11.5 11.5z m0-2c-5.247 0-9.5-4.253-9.5-9.5s4.253-9.5 9.5-9.5 9.5 4.253 9.5 9.5-4.253 9.5-9.5 9.5z m0-16c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5 6.5-2.91 6.5-6.5-2.91-6.5-6.5-6.5z"></path></svg>
                            </Link>
                          </div>
                         <div className="flex items-center gap-2">
@@ -122,7 +122,7 @@ export default function AirbnbPage() {
                                 </SheetTrigger>
                                 <SheetContent>
                                     <div className="flex flex-col gap-4 py-4">
-                                        <Button variant="ghost">Become a Host</Button>
+                                        <Button variant="ghost">Airbnb your home</Button>
                                         <Button variant="ghost">Log in</Button>
                                         <Button>Sign up</Button>
                                     </div>
