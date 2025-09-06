@@ -38,7 +38,7 @@ export function Header({ role }: HeaderProps) {
   };
   
   const NavComponent = role === 'Teacher' ? TeacherMobileNav : StudentMobileNav;
-  const brandName = role === 'Teacher' ? 'ClassZen' : 'EduTrack';
+  const brandName = 'ClassZen';
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card px-4 sm:px-6">

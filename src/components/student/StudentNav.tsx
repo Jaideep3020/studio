@@ -7,11 +7,11 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/student/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '#', icon: BookText, label: 'Attendance' },
-  { href: '#', icon: BookOpen, label: 'Assignments' },
-  { href: '#', icon: BarChart, label: 'Reports' },
+  { href: '/student/attendance', icon: BookText, label: 'Attendance' },
+  { href: '/student/assignments', icon: BookOpen, label: 'Assignments' },
+  { href: '/student/reports', icon: BarChart, label: 'Reports' },
   { href: '/student/career-guidance', icon: MessageSquareHeart, label: 'AI Career Chat' },
-  { href: '#', icon: Settings, label: 'Settings' },
+  { href: '/student/profile', icon: Settings, label: 'Settings' },
 ];
 
 function NavLinks() {
@@ -44,7 +44,7 @@ export function StudentNav() {
         <div className="flex h-16 items-center border-b px-4 lg:px-6">
           <Link href="/" className="flex items-center gap-2 font-semibold text-foreground">
             <GraduationCap className="h-6 w-6 text-primary" />
-            <span className="text-lg">EduTrack</span>
+            <span className="text-lg">ClassZen</span>
           </Link>
         </div>
         <div className="flex-1">
