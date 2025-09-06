@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Generates a unique QR code for each lecture.
@@ -8,9 +9,13 @@
  */
 import QRCode from 'qrcode';
 import {z} from 'genkit';
+import { LecturePayload } from '@/lib/types';
 
 const GenerateLectureQrCodeInputSchema = z.object({
-  lectureDescription: z.string().describe('The description of the lecture (e.g., \'Physics 101 - Introduction to Mechanics\').'),
+  lectureDescription: z.object({
+    id: z.string(),
+    description: z.string(),
+  }).describe('The lecture payload containing id and description.'),
 });
 export type GenerateLectureQrCodeInput = z.infer<typeof GenerateLectureQrCodeInputSchema>;
 
@@ -21,7 +26,7 @@ export type GenerateLectureQrCodeOutput = z.infer<typeof GenerateLectureQrCodeOu
 
 export async function generateLectureQrCode(input: GenerateLectureQrCodeInput): Promise<GenerateLectureQrCodeOutput> {
   try {
-    const qrCodeDataUri = await QRCode.toDataURL(input.lectureDescription);
+    const qrCodeDataUri = await QRCode.toDataURL(JSON.stringify(input.lectureDescription));
     return { qrCodeDataUri };
   } catch (err) {
     console.error(err);
