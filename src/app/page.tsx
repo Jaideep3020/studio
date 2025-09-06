@@ -1,21 +1,24 @@
-import { ArrowRight, School, User } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GraduationCap, User } from 'lucide-react';
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-background">
+    <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-background text-foreground">
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold text-primary mb-2 font-headline">ClassZen</h1>
-        <p className="text-muted-foreground text-lg">Streamlining classroom management for teachers and students.</p>
+        <div className="flex justify-center items-center gap-4 mb-4">
+          <GraduationCap className="w-16 h-16 text-primary" />
+          <h1 className="text-6xl font-bold">EduTrack</h1>
+        </div>
+        <p className="text-muted-foreground text-xl">Student Management System</p>
       </div>
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
         <RoleCard
           role="Teacher"
           description="Manage your classes, generate attendance codes, and create assignments."
-          icon={<School className="w-12 h-12 text-primary" />}
+          icon={<GraduationCap className="w-12 h-12 text-primary" />}
           href="/teacher/dashboard"
         />
         <RoleCard
@@ -39,7 +42,7 @@ interface RoleCardProps {
 function RoleCard({ role, description, icon, href }: RoleCardProps) {
   return (
     <Link href={href} className="group">
-      <Card className="h-full flex flex-col items-center text-center p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary">
+      <Card className="h-full flex flex-col items-center text-center p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary bg-card">
         <CardHeader>
           <div className="mx-auto bg-primary/10 rounded-full p-4 mb-4">
             {icon}
@@ -49,7 +52,7 @@ function RoleCard({ role, description, icon, href }: RoleCardProps) {
         </CardHeader>
         <CardContent className="mt-auto">
           <Button variant="ghost" className="text-primary group-hover:underline">
-            Login as {role} <ArrowRight className="ml-2 h-4 w-4" />
+            Go to {role} Portal
           </Button>
         </CardContent>
       </Card>

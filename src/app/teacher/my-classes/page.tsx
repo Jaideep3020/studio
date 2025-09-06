@@ -2,9 +2,9 @@
 import { Header } from '@/components/common/Header';
 import { TeacherNav } from '@/components/teacher/TeacherNav';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { CheckSquare } from 'lucide-react';
+import { Users } from 'lucide-react';
 
-export default function AttendancePage() {
+export default function MyClassesPage() {
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <TeacherNav />
@@ -14,16 +14,16 @@ export default function AttendancePage() {
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline flex items-center gap-2">
-                        <CheckSquare className="text-primary h-5 w-5" />
-                        Attendance Records
+                        <Users className="text-primary h-5 w-5" />
+                        My Classes
                     </CardTitle>
                     <CardDescription>
-                        View and manage historical attendance data for all your classes.
+                        View and manage your classes and student rosters.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <p className="text-center text-muted-foreground py-12">
-                        Attendance records functionality will be implemented here.
+                        Class management functionality will be implemented here.
                     </p>
                 </CardContent>
             </Card>

@@ -9,8 +9,8 @@ export default function ReportsPage() {
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <TeacherNav />
       <div className="flex flex-col">
-        <Header role="Teacher" showSearch />
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-muted/40">
+        <Header role="Teacher" />
+        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-background">
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline flex items-center gap-2">

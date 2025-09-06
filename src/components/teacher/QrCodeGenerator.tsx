@@ -3,31 +3,37 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { generateLectureQrCode } from '@/ai/flows/generate-lecture-qr-code';
-import { QrCode, Zap, LoaderCircle } from 'lucide-react';
-import Image from 'next/image';
+import { QrCode, LoaderCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { Lecture } from '@/lib/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface QrCodeGeneratorProps {
-    onQrCodeGenerated: (lecture: Lecture) => void;
+    onQrCodeGenerated: (lecture: Lecture, qrCodeDataUri: string) => void;
 }
 
+const availableClasses = [
+    'Physics 101 - Introduction to Mechanics',
+    'Mathematics 202 - Advanced Calculus',
+    'History 301 - The World Wars',
+    'English Literature 101 - Shakespeare',
+]
+
 export function QrCodeGenerator({ onQrCodeGenerated }: QrCodeGeneratorProps) {
-  const [lectureDescription, setLectureDescription] = useState('Physics 101 - Introduction to Mechanics');
-  const [qrCodeDataUri, setQrCodeDataUri] = useState<string | null>(null);
+  const [lectureDescription, setLectureDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentLecture, setCurrentLecture] = useState<Lecture | null>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!lectureDescription) {
+        setError('Please select a class to generate a QR code.');
+        return;
+    }
     setIsLoading(true);
     setError(null);
-    setQrCodeDataUri(null);
 
     try {
       const lectureId = `lecture_${Date.now()}`;
@@ -36,10 +42,8 @@ export function QrCodeGenerator({ onQrCodeGenerated }: QrCodeGeneratorProps) {
       const result = await generateLectureQrCode({ lectureDescription: lecturePayload });
 
       if (result.qrCodeDataUri) {
-        setQrCodeDataUri(result.qrCodeDataUri);
         const newLecture = { id: lectureId, description: lectureDescription };
-        setCurrentLecture(newLecture);
-        onQrCodeGenerated(newLecture);
+        onQrCodeGenerated(newLecture, result.qrCodeDataUri);
       } else {
         setError('Failed to generate QR code. The AI did not return valid data.');
       }
@@ -54,31 +58,32 @@ export function QrCodeGenerator({ onQrCodeGenerated }: QrCodeGeneratorProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline flex items-center gap-2">
-          <QrCode className="text-primary" />
-          Attendance QR Code
-        </CardTitle>
-        <CardDescription>Generate a unique QR code for the current lecture.</CardDescription>
+        <CardTitle>Generate QR Code</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="grid w-full items-center gap-4">
           <div className="flex flex-col space-y-1.5">
-            <Label htmlFor="lecture-description">Lecture Description</Label>
-            <Textarea
-              id="lecture-description"
-              placeholder="e.g., Physics 101 - Introduction to Mechanics"
-              value={lectureDescription}
-              onChange={(e) => setLectureDescription(e.target.value)}
-              required
-            />
+            <label className="text-sm font-medium">Select Class</label>
+            <Select onValueChange={setLectureDescription} value={lectureDescription}>
+                <SelectTrigger id="class-select" className="w-full">
+                    <SelectValue placeholder="Choose a class" />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                    {availableClasses.map((className) => (
+                        <SelectItem key={className} value={className}>
+                            {className}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
           </div>
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading || !lectureDescription}>
             {isLoading ? (
               <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              <Zap className="mr-2 h-4 w-4" />
+              <QrCode className="mr-2 h-4 w-4" />
             )}
-            {isLoading ? 'Generating...' : 'Generate Code'}
+            {isLoading ? 'Generating...' : 'Generate QR Code'}
           </Button>
         </form>
 
@@ -87,16 +92,6 @@ export function QrCodeGenerator({ onQrCodeGenerated }: QrCodeGeneratorProps) {
                 <AlertTitle>Error</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
             </Alert>
-        )}
-        
-        {qrCodeDataUri && currentLecture && (
-          <div className="mt-6 text-center">
-            <h3 className="font-semibold mb-2">Scan for Attendance</h3>
-            <div className="p-4 border rounded-lg inline-block bg-white">
-              <Image src={qrCodeDataUri} alt="Generated QR Code" width={200} height={200} />
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">{currentLecture.description}</p>
-          </div>
         )}
       </CardContent>
     </Card>

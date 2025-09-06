@@ -9,7 +9,7 @@ import type { Lecture } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 
-export default function TeacherDashboard() {
+export default function QrCodePage() {
   const [activeLecture, setActiveLecture] = useState<Lecture | null>(null);
   const [qrCodeDataUri, setQrCodeDataUri] = useState<string | null>(null);
 
@@ -24,14 +24,6 @@ export default function TeacherDashboard() {
       <div className="flex flex-col">
         <Header role="Teacher" />
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-background">
-          <div className="grid gap-4">
-            <Card className="bg-card border-none">
-              <CardHeader>
-                <CardTitle className="text-3xl font-bold">Teacher Dashboard</CardTitle>
-                <CardDescription>Manage your classes and track student attendance in real-time.</CardDescription>
-              </CardHeader>
-            </Card>
-          </div>
           <div className="grid gap-4 md:grid-cols-2 md:gap-8">
             <QrCodeGenerator onQrCodeGenerated={handleQrCodeGenerated} />
             <Card>
