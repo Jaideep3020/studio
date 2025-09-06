@@ -1,7 +1,5 @@
-
 'use client';
 
-import { useState } from 'react';
 import { Header } from '@/components/common/Header';
 import { AddClassDialog } from '@/components/teacher/AddClassDialog';
 import { AddStudentDialog } from '@/components/teacher/AddStudentDialog';
@@ -12,48 +10,22 @@ import { Users, PlusCircle, School, BookOpen, Trash2, ChevronDown } from 'lucide
 import type { Class, Student } from '@/lib/types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-
-interface ClassWithStudents extends Class {
-  students: Student[];
-}
+import { useClasses } from '@/context/ClassContext';
 
 export default function MyClassesPage() {
-  const [classes, setClasses] = useState<ClassWithStudents[]>([]);
+  const { classes, addClass, addStudentToClass, removeStudentFromClass } = useClasses();
 
   const handleAddClass = (newClass: Omit<Class, 'id'>) => {
-    const newClassWithDetails: ClassWithStudents = {
-      id: `class_${Date.now()}`,
-      ...newClass,
-      students: [],
-    };
-    setClasses((prevClasses) => [...prevClasses, newClassWithDetails]);
+    addClass(newClass);
   };
   
   const handleAddStudent = (classId: string, studentName: string, studentEmail: string) => {
-    setClasses(prevClasses => 
-      prevClasses.map(c => {
-        if (c.id === classId) {
-          const newStudent: Student = {
-            id: `student_${Date.now()}`,
-            name: studentName,
-            email: studentEmail,
-          };
-          return { ...c, students: [...c.students, newStudent] };
-        }
-        return c;
-      })
-    );
+    const newStudent: Omit<Student, 'id'> = { name: studentName, email: studentEmail };
+    addStudentToClass(classId, newStudent);
   };
   
   const handleDropStudent = (classId: string, studentId: string) => {
-    setClasses(prevClasses =>
-      prevClasses.map(c => {
-        if (c.id === classId) {
-          return { ...c, students: c.students.filter(s => s.id !== studentId) };
-        }
-        return c;
-      })
-    );
+    removeStudentFromClass(classId, studentId);
   };
 
   return (

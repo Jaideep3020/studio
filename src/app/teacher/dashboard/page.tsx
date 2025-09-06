@@ -1,3 +1,4 @@
+'use client';
 
 import { Header } from '@/components/common/Header';
 import { Assignments } from '@/components/teacher/Assignments';
@@ -7,9 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { UserPlus, CalendarPlus, FileText, Activity } from 'lucide-react';
 import Link from 'next/link';
-
+import { useClasses } from '@/context/ClassContext';
 
 export default function TeacherDashboard() {
+  const { classes } = useClasses();
+  const totalStudents = classes.reduce((sum, currentClass) => sum + currentClass.students.length, 0);
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <TeacherNav />
@@ -27,7 +31,7 @@ export default function TeacherDashboard() {
                 </Button>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">1,257</div>
+                <div className="text-2xl font-bold">{totalStudents}</div>
                 <p className="text-xs text-muted-foreground">+5% from last month</p>
               </CardContent>
             </Card>
@@ -61,7 +65,7 @@ export default function TeacherDashboard() {
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">4</div>
+                <div className="text-2xl font-bold">{classes.length}</div>
                 <p className="text-xs text-muted-foreground">2 ongoing, 2 upcoming</p>
               </CardContent>
             </Card>

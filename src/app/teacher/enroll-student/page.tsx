@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -11,14 +10,9 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { UserPlus, LoaderCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Class } from '@/lib/types';
+import { useClasses } from '@/context/ClassContext';
+import type { Student } from '@/lib/types';
 
-// Mock data for existing classes. In a real app, this would be fetched from a database.
-const MOCK_CLASSES: Class[] = [
-  { id: 'class_1', name: 'Grade 10A', subject: 'Physics 101' },
-  { id: 'class_2', name: 'Grade 11B', subject: 'Algebra II' },
-  { id: 'class_3', name: 'Grade 12C', subject: 'Lab Report' },
-];
 
 export default function EnrollStudentPage() {
   const [studentName, setStudentName] = useState('');
@@ -26,6 +20,7 @@ export default function EnrollStudentPage() {
   const [selectedClassId, setSelectedClassId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { classes, addStudentToClass } = useClasses();
 
   const handleEnrollStudent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +36,10 @@ export default function EnrollStudentPage() {
     setIsLoading(true);
 
     // Simulate an API call to enroll the student
-    console.log('Enrolling student:', { studentName, studentEmail, selectedClassId });
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    
+    const newStudent: Omit<Student, 'id'> = { name: studentName, email: studentEmail };
+    addStudentToClass(selectedClassId, newStudent);
 
     setIsLoading(false);
     setStudentName('');
@@ -103,7 +100,7 @@ export default function EnrollStudentPage() {
                         <SelectValue placeholder="Choose a class to enroll into" />
                       </SelectTrigger>
                       <SelectContent position="popper">
-                        {MOCK_CLASSES.map((classItem) => (
+                        {classes.map((classItem) => (
                           <SelectItem key={classItem.id} value={classItem.id}>
                             {classItem.name} - {classItem.subject}
                           </SelectItem>
