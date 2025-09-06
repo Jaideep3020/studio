@@ -27,13 +27,14 @@ export default function MyClassesPage() {
     setClasses((prevClasses) => [...prevClasses, newClassWithDetails]);
   };
   
-  const handleAddStudent = (classId: string, studentName: string) => {
+  const handleAddStudent = (classId: string, studentName: string, studentEmail: string) => {
     setClasses(prevClasses => 
       prevClasses.map(c => {
         if (c.id === classId) {
           const newStudent: Student = {
             id: `student_${Date.now()}`,
             name: studentName,
+            email: studentEmail,
           };
           return { ...c, students: [...c.students, newStudent] };
         }

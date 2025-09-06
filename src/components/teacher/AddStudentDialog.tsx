@@ -20,12 +20,13 @@ import { LoaderCircle } from 'lucide-react';
 interface AddStudentDialogProps {
   children: React.ReactNode;
   classId: string;
-  onStudentAdded: (classId: string, studentName: string) => void;
+  onStudentAdded: (classId: string, studentName: string, studentEmail: string) => void;
 }
 
 export function AddStudentDialog({ children, classId, onStudentAdded }: AddStudentDialogProps) {
   const [open, setOpen] = useState(false);
   const [studentName, setStudentName] = useState('');
+  const [studentEmail, setStudentEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -36,15 +37,16 @@ export function AddStudentDialog({ children, classId, onStudentAdded }: AddStude
     // Simulate saving to a database
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
-    onStudentAdded(classId, studentName);
+    onStudentAdded(classId, studentName, studentEmail);
 
     setIsLoading(false);
     setOpen(false); // Close the dialog
     setStudentName(''); // Reset form
+    setStudentEmail(''); // Reset form
 
     toast({
       title: 'Student Added!',
-      description: `"${studentName}" has been added to the class.`,
+      description: `"${studentName}" has been enrolled in the class.`,
       className: 'bg-success text-success-foreground',
     });
   };
@@ -59,19 +61,33 @@ export function AddStudentDialog({ children, classId, onStudentAdded }: AddStude
           <DialogHeader>
             <DialogTitle>Add Student</DialogTitle>
             <DialogDescription>
-              Enter the student's name to add them to this class.
+              Enter the student's details to enroll them in this class.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="student-name" className="text-right">
-                Student Name
+                Full Name
               </Label>
               <Input
                 id="student-name"
                 value={studentName}
                 onChange={(e) => setStudentName(e.target.value)}
                 placeholder="e.g., John Doe"
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="student-email" className="text-right">
+                Email
+              </Label>
+              <Input
+                id="student-email"
+                type="email"
+                value={studentEmail}
+                onChange={(e) => setStudentEmail(e.target.value)}
+                placeholder="e.g., john.doe@example.com"
                 className="col-span-3"
                 required
               />
