@@ -6,6 +6,7 @@ import { TeacherNav } from '@/components/teacher/TeacherNav';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserPlus, CalendarPlus, FileText, Activity } from 'lucide-react';
+import Link from 'next/link';
 
 
 export default function TeacherDashboard() {
@@ -19,7 +20,11 @@ export default function TeacherDashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Students</CardTitle>
-                <UserPlus className="h-4 w-4 text-muted-foreground" />
+                <Button asChild variant="ghost" size="icon">
+                  <Link href="/teacher/my-classes">
+                    <UserPlus className="h-4 w-4 text-muted-foreground" />
+                  </Link>
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">1,257</div>
@@ -29,7 +34,11 @@ export default function TeacherDashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Attendance Rate</CardTitle>
-                <CalendarPlus className="h-4 w-4 text-muted-foreground" />
+                 <Button asChild variant="ghost" size="icon">
+                  <Link href="/teacher/attendance">
+                    <CalendarPlus className="h-4 w-4 text-muted-foreground" />
+                  </Link>
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">92.8%</div>
