@@ -8,6 +8,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
+  AuthError,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
+
+function isAuthError(error: unknown): error is AuthError {
+    return typeof error === 'object' && error !== null && 'code' in error;
+}
 
 export default function LoginPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -34,10 +39,34 @@ export default function LoginPage() {
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error('Error signing in with Google', error);
+      
+      let title = 'Login Failed';
+      let description = 'An unknown error occurred. Please try again.';
+
+      if (isAuthError(error)) {
+        switch (error.code) {
+          case 'auth/popup-closed-by-user':
+            title = 'Login Canceled';
+            description = 'You closed the sign-in window before completing the process.';
+            break;
+          case 'auth/network-request-failed':
+            title = 'Network Error';
+            description = 'Could not connect to Google. Please check your internet connection and ensure Google Sign-In is enabled in your Firebase project settings.';
+            break;
+          case 'auth/operation-not-allowed':
+             title = 'Login Method Disabled';
+             description = 'Google Sign-In is not enabled for this app. Please enable it in the Firebase Authentication console.';
+             break;
+          default:
+            description = `An error occurred: ${error.message}`;
+            break;
+        }
+      }
+
       toast({
         variant: 'destructive',
-        title: 'Login Failed',
-        description: 'Could not sign in with Google. Please try again.',
+        title: title,
+        description: description,
       });
     }
   };
