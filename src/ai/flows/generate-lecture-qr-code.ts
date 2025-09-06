@@ -15,7 +15,8 @@ const GenerateLectureQrCodeInputSchema = z.object({
   lectureDescription: z.object({
     id: z.string(),
     description: z.string(),
-  }).describe('The lecture payload containing id and description.'),
+    timestamp: z.number(), // Added timestamp for time-based validation
+  }).describe('The lecture payload containing id, description, and timestamp.'),
 });
 export type GenerateLectureQrCodeInput = z.infer<typeof GenerateLectureQrCodeInputSchema>;
 
@@ -26,7 +27,6 @@ export type GenerateLectureQrCodeOutput = z.infer<typeof GenerateLectureQrCodeOu
 
 export async function generateLectureQrCode(input: GenerateLectureQrCodeInput): Promise<GenerateLectureQrCodeOutput> {
   try {
-    // Correctly stringify the object payload for the QR code
     const qrCodeDataUri = await QRCode.toDataURL(JSON.stringify(input.lectureDescription));
     return { qrCodeDataUri };
   } catch (err) {

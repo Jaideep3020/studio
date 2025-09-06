@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 
 // Mock student data for this simulation
 const MOCK_STUDENT: Student = { id: 'student_123', name: 'Alex Doe' };
+const QR_CODE_VALIDITY_SECONDS = 60;
 
 type ScanResult = 'success' | 'failure' | 'scanning' | 'idle';
 
@@ -51,7 +52,6 @@ export function Attendance() {
     stopCamera();
     setScannedData(data);
     
-    // Check if the teacher's portal function is available
     if (typeof window !== 'undefined' && (window as any).markStudentAttendance) {
       const success = (window as any).markStudentAttendance(MOCK_STUDENT, data.id);
       if (success) {
@@ -63,11 +63,9 @@ export function Attendance() {
           description: `You are checked in for ${data.description}.`,
         });
       } else {
-        // This means the QR was valid but rejected by the teacher portal (e.g., wrong class)
         handleScanFailure('This QR code is not for the currently active lecture.');
       }
     } else {
-        // This means the student portal is open but the teacher's isn't
         handleScanFailure('Could not connect to the attendance system. Are both portals open?');
     }
   }, [stopCamera, toast, handleScanFailure]);
@@ -107,8 +105,17 @@ export function Attendance() {
                 
                 try {
                   const parsedData = JSON.parse(code.data);
-                  if (typeof parsedData === 'object' && parsedData !== null && 'id' in parsedData && 'description' in parsedData && typeof parsedData.id === 'string' && parsedData.id.startsWith('lecture_')) {
-                    handleScanSuccess(parsedData as LecturePayload);
+                  const isDataValid = typeof parsedData === 'object' && parsedData !== null && 
+                                      'id' in parsedData && 'description' in parsedData && 'timestamp' in parsedData &&
+                                      typeof parsedData.id === 'string' && parsedData.id.startsWith('lecture_');
+                  
+                  if (isDataValid) {
+                    const timeSinceGenerated = (Date.now() - parsedData.timestamp) / 1000;
+                    if (timeSinceGenerated > QR_CODE_VALIDITY_SECONDS) {
+                      handleScanFailure('This QR code has expired. Please scan the latest one.');
+                    } else {
+                      handleScanSuccess(parsedData as LecturePayload);
+                    }
                   } else {
                     handleScanFailure('This QR code is not a valid attendance code.');
                   }
@@ -186,7 +193,7 @@ export function Attendance() {
                 <AlertTriangle className="h-16 w-16 text-destructive" />
                 <p className="text-lg font-semibold text-destructive">Scan Failed</p>
                 <p className="text-sm text-muted-foreground max-w-xs">
-                    Could not mark attendance. Please ensure camera permissions are enabled and try again.
+                    Could not mark attendance. Please ensure the QR is valid and try again.
                 </p>
                  <Button onClick={handleTryAgain} variant="destructive">
                     <RefreshCw className="mr-2 h-4 w-4" />

@@ -13,6 +13,7 @@ export interface Lecture {
 export interface LecturePayload {
     id: string;
     description: string;
+    timestamp: number;
 }
 
 export interface Question {

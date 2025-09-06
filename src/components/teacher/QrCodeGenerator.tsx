@@ -37,8 +37,9 @@ export function QrCodeGenerator({ onQrCodeGenerated, activeLecture }: QrCodeGene
     setError(null);
 
     try {
-      const lectureId = `lecture_${Date.now()}`;
-      const lecturePayload = { id: lectureId, description: lectureDescription };
+      const timestamp = Date.now();
+      const lectureId = `lecture_${timestamp}`;
+      const lecturePayload = { id: lectureId, description: lectureDescription, timestamp };
 
       const result = await generateLectureQrCode({ lectureDescription: lecturePayload });
 
