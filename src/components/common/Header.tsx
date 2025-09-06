@@ -1,3 +1,6 @@
+
+'use client';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +15,9 @@ import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import { Button } from '../ui/button';
 import { MobileNav } from '../teacher/TeacherNav';
 import { Input } from '../ui/input';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
 
 
 interface HeaderProps {
@@ -19,7 +25,17 @@ interface HeaderProps {
 }
 
 export function Header({ role }: HeaderProps) {
-  const userInitial = role.charAt(0);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error('Error signing out: ', error);
+      // You could add a toast notification here to inform the user of the error.
+    }
+  };
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card px-4 sm:px-6">
@@ -73,7 +89,7 @@ export function Header({ role }: HeaderProps) {
             <span>Support</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Logout</span>
           </DropdownMenuItem>
