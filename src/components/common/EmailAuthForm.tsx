@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -14,8 +15,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { LoaderCircle, AlertCircle } from 'lucide-react';
+import { LoaderCircle, AlertCircle, Sparkles, User, UserCog } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '../ui/separator';
 
 function isAuthError(error: unknown): error is AuthError {
   return typeof error === 'object' && error !== null && 'code' in error;
@@ -29,6 +31,8 @@ export function EmailAuthForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('signin');
+  const router = useRouter();
+
 
   const handleAuthError = (error: unknown) => {
     if (isAuthError(error)) {
@@ -112,6 +116,20 @@ export function EmailAuthForm() {
       setLoading(false);
     }
   };
+  
+  const fillMockData = (mockRole: 'student' | 'teacher') => {
+    if (mockRole === 'student') {
+        setName('Alex Johnson');
+        setEmail('alex.j@example.com');
+        setPassword('password123');
+        setRole('student');
+    } else {
+        setName('Dr. Evelyn Reed');
+        setEmail('e.reed@example.com');
+        setPassword('password123');
+        setRole('teacher');
+    }
+  }
 
   return (
     <div className="w-full">
@@ -187,7 +205,7 @@ export function EmailAuthForm() {
             <div className="space-y-3">
               <Label>I am a...</Label>
               <RadioGroup
-                defaultValue="student"
+                value={role}
                 className="flex gap-4"
                 onValueChange={(value: 'student' | 'teacher') => setRole(value)}
               >
@@ -201,6 +219,14 @@ export function EmailAuthForm() {
                 </div>
               </RadioGroup>
             </div>
+             <div className="flex gap-2 justify-center pt-2">
+                <Button variant="outline" size="sm" type="button" onClick={() => fillMockData('student')}>
+                    <User /> Student
+                </Button>
+                <Button variant="outline" size="sm" type="button" onClick={() => fillMockData('teacher')}>
+                    <UserCog /> Teacher
+                </Button>
+            </div>
             <Button type="submit" disabled={loading} className="w-full">
               {loading && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Create Account
@@ -208,6 +234,28 @@ export function EmailAuthForm() {
           </form>
         </TabsContent>
       </Tabs>
+      
+       <div className="relative my-4">
+        <Separator />
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-card px-2 text-sm text-muted-foreground">
+          OR
+        </div>
+      </div>
+
+       <div className="grid gap-2">
+            <p className="text-sm text-muted-foreground text-center flex items-center justify-center gap-2">
+                <Sparkles className="text-primary"/> Quick Access for Testing
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+                <Button variant="secondary" onClick={() => router.push('/student/dashboard')}>
+                    Login as Student
+                </Button>
+                <Button variant="secondary" onClick={() => router.push('/teacher/dashboard')}>
+                    Login as Teacher
+                </Button>
+            </div>
+       </div>
+
 
       {error && (
         <Alert variant="destructive" className="mt-4">

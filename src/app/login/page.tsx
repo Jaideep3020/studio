@@ -38,19 +38,31 @@ export default function LoginPage() {
               router.push('/student/dashboard');
             } else {
               setError('Your role is not configured. Please contact support.');
-              await signOut(auth);
+              try {
+                  await signOut(auth);
+              } catch (e) {
+                  console.error("Sign out failed", e);
+              }
               setUser(null);
             }
           } else {
             // This case can happen if a user is created in Auth but their Firestore doc fails
             setError('User data not found. Please sign up again or contact support.');
-            await signOut(auth);
+            try {
+                await signOut(auth);
+            } catch (e) {
+                console.error("Sign out failed", e);
+            }
             setUser(null);
           }
         } catch (dbError) {
           console.error('Error fetching user role from Firestore:', dbError);
           setError('Could not verify your role. Please try again later.');
-          await signOut(auth);
+          try {
+            await signOut(auth);
+          } catch(e) {
+            console.error("Sign out failed", e)
+          }
           setUser(null);
         }
       } else {
@@ -77,7 +89,7 @@ export default function LoginPage() {
     <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 bg-background text-foreground">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">ClassZen</CardTitle>
+          <CardTitle className="text-2xl font-bold font-headline">ClassZen</CardTitle>
           <CardDescription>
             Sign in or create an account to continue
           </CardDescription>
