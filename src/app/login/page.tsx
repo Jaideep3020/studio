@@ -57,6 +57,10 @@ export default function LoginPage() {
              title = 'Login Method Disabled';
              description = 'Google Sign-In is not enabled for this app. Please enable it in the Firebase Authentication console.';
              break;
+          case 'auth/configuration-not-found':
+            title = 'Configuration Not Found';
+            description = 'Google Sign-In is not enabled for this app. Please enable it in the Firebase Authentication console under Sign-in method.';
+            break;
           default:
             description = `An error occurred: ${error.message}`;
             break;
