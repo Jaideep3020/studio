@@ -82,16 +82,17 @@ export function Attendance() {
                   inversionAttempts: "dontInvert",
               });
       
-              if (code) {
-                  try {
-                      const parsedData: LecturePayload = JSON.parse(code.data);
-                      if (parsedData.id && parsedData.description) {
-                          handleScanSuccess(parsedData);
-                          return; // Stop scanning only on success
-                      }
-                  } catch (e) {
-                      // Not a valid JSON QR code, ignore and continue scanning
+              if (code && code.data) {
+                try {
+                  const parsedData = JSON.parse(code.data);
+                  // More robust check to ensure it's our specific QR code
+                  if (typeof parsedData === 'object' && parsedData !== null && 'id' in parsedData && 'description' in parsedData && typeof parsedData.id === 'string' && parsedData.id.startsWith('lecture_')) {
+                    handleScanSuccess(parsedData as LecturePayload);
+                    return; // Stop scanning
                   }
+                } catch (e) {
+                  // QR code is not valid JSON, so we ignore it and continue scanning
+                }
               }
             }
         }
