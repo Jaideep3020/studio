@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LayoutDashboard, Users, BookText, CalendarDays, Settings, GraduationCap } from 'lucide-react';
+import { LayoutDashboard, Users, BookText, CalendarDays, Settings, GraduationCap, QrCode } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -11,6 +11,7 @@ const navItems = [
   { href: '/teacher/my-classes', icon: Users, label: 'User Management' },
   { href: '/teacher/attendance', icon: BookText, label: 'Institution Reports' },
   { href: '/teacher/reports', icon: CalendarDays, label: 'Timetable Management' },
+  { href: '/teacher/qr-code', icon: QrCode, label: 'QR Code' },
   { href: '#', icon: Settings, label: 'System Settings' },
 ];
 

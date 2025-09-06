@@ -23,12 +23,13 @@ export default function QrCodePage() {
       <TeacherNav />
       <div className="flex flex-col">
         <Header role="Teacher" />
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-background">
+        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-muted/40">
           <div className="grid gap-4 md:grid-cols-2 md:gap-8">
             <QrCodeGenerator onQrCodeGenerated={handleQrCodeGenerated} />
             <Card>
               <CardHeader>
                 <CardTitle>Active QR Code</CardTitle>
+                <CardDescription>Students can scan this code to mark their attendance.</CardDescription>
               </CardHeader>
               <CardContent className="flex items-center justify-center p-6">
                 {qrCodeDataUri ? (
@@ -40,9 +41,12 @@ export default function QrCodePage() {
                   </div>
                 ) : (
                   <div className="w-52 h-52 bg-muted rounded-lg flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
+                    <div className="text-center text-muted-foreground">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                        </svg>
+                        <p>QR code will appear here</p>
+                    </div>
                   </div>
                 )}
               </CardContent>
