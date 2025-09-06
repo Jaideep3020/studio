@@ -55,9 +55,13 @@ export default function LoginPage() {
             }
             setUser(null);
           }
-        } catch (dbError) {
+        } catch (dbError: any) {
           console.error('Error fetching user role from Firestore:', dbError);
-          setError('Could not verify your role. Please try again later.');
+          if (dbError.message && (dbError.message.includes('offline') || dbError.message.includes('Failed to get document'))) {
+            setError('Could not connect to the database. Please ensure you have created a Firestore database in your Firebase project and that your security rules allow access.');
+          } else {
+            setError('Could not verify your role. Please try again later.');
+          }
           try {
             await signOut(auth);
           } catch(e) {
