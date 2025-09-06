@@ -16,14 +16,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle } from 'lucide-react';
+import type { Class } from '@/lib/types';
 
 interface AddClassDialogProps {
   children: React.ReactNode;
+  onClassAdded: (newClass: Omit<Class, 'id' | 'studentCount'>) => void;
 }
 
-export function AddClassDialog({ children }: AddClassDialogProps) {
+export function AddClassDialog({ children, onClassAdded }: AddClassDialogProps) {
   const [open, setOpen] = useState(false);
-  const [className, setClassName] = useState('');
+  const [name, setName] = useState('');
   const [subject, setSubject] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -34,15 +36,17 @@ export function AddClassDialog({ children }: AddClassDialogProps) {
 
     // Simulate saving to a database
     await new Promise((resolve) => setTimeout(resolve, 1000));
+    
+    onClassAdded({ name, subject });
 
     setIsLoading(false);
     setOpen(false); // Close the dialog
-    setClassName(''); // Reset form
+    setName(''); // Reset form
     setSubject('');   // Reset form
 
     toast({
       title: 'Class Added!',
-      description: `The class "${className}" has been created successfully.`,
+      description: `The class "${name}" has been created successfully.`,
       className: 'bg-success text-success-foreground',
     });
   };
@@ -67,8 +71,8 @@ export function AddClassDialog({ children }: AddClassDialogProps) {
               </Label>
               <Input
                 id="class-name"
-                value={className}
-                onChange={(e) => setClassName(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="e.g., Grade 10A"
                 className="col-span-3"
                 required

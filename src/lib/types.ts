@@ -39,3 +39,10 @@ export interface QuizSubmission {
     score: number;
     submittedAt: Date;
 }
+
+export interface Class {
+  id: string;
+  name: string;
+  subject: string;
+  studentCount: number;
+}

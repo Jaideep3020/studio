@@ -1,14 +1,26 @@
 
+'use client';
+
+import { useState } from 'react';
 import { Header } from '@/components/common/Header';
 import { AddClassDialog } from '@/components/teacher/AddClassDialog';
 import { TeacherNav } from '@/components/teacher/TeacherNav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, PlusCircle, School } from 'lucide-react';
+import { Users, PlusCircle, School, BookOpen } from 'lucide-react';
+import type { Class } from '@/lib/types';
 
 export default function MyClassesPage() {
-  // In a real app, this would be fetched from a database
-  const classes = []; 
+  const [classes, setClasses] = useState<Class[]>([]);
+
+  const handleAddClass = (newClass: Omit<Class, 'id' | 'studentCount'>) => {
+    const newClassWithDetails: Class = {
+      id: `class_${Date.now()}`,
+      ...newClass,
+      studentCount: 0, // Default to 0 students for a new class
+    };
+    setClasses((prevClasses) => [...prevClasses, newClassWithDetails]);
+  };
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -27,7 +39,7 @@ export default function MyClassesPage() {
                             View and manage your classes and student rosters.
                         </CardDescription>
                     </div>
-                    <AddClassDialog>
+                    <AddClassDialog onClassAdded={handleAddClass}>
                       <Button>
                           <PlusCircle className="mr-2 h-4 w-4"/>
                           Add New Class
@@ -42,7 +54,7 @@ export default function MyClassesPage() {
                             <p className="mt-2 text-sm">
                                 You haven't added any classes yet.
                             </p>
-                            <AddClassDialog>
+                            <AddClassDialog onClassAdded={handleAddClass}>
                               <Button className="mt-4">
                                   <PlusCircle className="mr-2 h-4 w-4" />
                                   Add Your First Class
@@ -50,9 +62,25 @@ export default function MyClassesPage() {
                             </AddClassDialog>
                         </div>
                     ) : (
-                        <p>
-                            {/* Class list will be rendered here */}
-                        </p>
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            {classes.map((classItem) => (
+                                <Card key={classItem.id} className="hover:shadow-md transition-shadow">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-3">
+                                            <BookOpen className="h-6 w-6 text-primary" />
+                                            {classItem.name}
+                                        </CardTitle>
+                                        <CardDescription>{classItem.subject}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                            <Users className="h-4 w-4" />
+                                            <span>{classItem.studentCount} Students</span>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
                     )}
                 </CardContent>
             </Card>
