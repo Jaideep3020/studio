@@ -1,5 +1,6 @@
 
 import { Header } from '@/components/common/Header';
+import { AddClassDialog } from '@/components/teacher/AddClassDialog';
 import { TeacherNav } from '@/components/teacher/TeacherNav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -26,10 +27,12 @@ export default function MyClassesPage() {
                             View and manage your classes and student rosters.
                         </CardDescription>
                     </div>
-                    <Button>
-                        <PlusCircle className="mr-2 h-4 w-4"/>
-                        Add New Class
-                    </Button>
+                    <AddClassDialog>
+                      <Button>
+                          <PlusCircle className="mr-2 h-4 w-4"/>
+                          Add New Class
+                      </Button>
+                    </AddClassDialog>
                 </CardHeader>
                 <CardContent>
                     {classes.length === 0 ? (
@@ -39,10 +42,12 @@ export default function MyClassesPage() {
                             <p className="mt-2 text-sm">
                                 You haven't added any classes yet.
                             </p>
-                            <Button className="mt-4">
-                                <PlusCircle className="mr-2 h-4 w-4" />
-                                Add Your First Class
-                            </Button>
+                            <AddClassDialog>
+                              <Button className="mt-4">
+                                  <PlusCircle className="mr-2 h-4 w-4" />
+                                  Add Your First Class
+                              </Button>
+                            </AddClassDialog>
                         </div>
                     ) : (
                         <p>
