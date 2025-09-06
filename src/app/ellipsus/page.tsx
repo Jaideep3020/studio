@@ -1,14 +1,76 @@
 
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ChevronDown, MoveRight } from 'lucide-react';
 import { Lora } from 'next/font/google';
 import Link from 'next/link';
 import './ellipsus.css';
+import { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
 
 const lora = Lora({ subsets: ['latin'], weight: ['700'] });
 
 export default function EllipsusPage() {
+  const magneticButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const magneticButton = magneticButtonRef.current;
+    if (!magneticButton) return;
+    
+    const span = magneticButton.querySelector('span');
+    if (!span) return;
+
+    const mouseMove = (e: MouseEvent) => {
+      const rect = magneticButton.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+
+      gsap.to(magneticButton, {
+        x: x * 0.3,
+        y: y * 0.3,
+        duration: 0.4,
+        ease: 'power3.out'
+      });
+      gsap.to(span, {
+        x: x * 0.5,
+        y: y * 0.5,
+        duration: 0.4,
+        ease: 'power3.out'
+      });
+    };
+
+    const mouseLeave = () => {
+      gsap.to(magneticButton, {
+        x: 0,
+        y: 0,
+        duration: 0.6,
+        ease: 'elastic.out(1, 0.3)'
+      });
+      gsap.to(span, {
+        x: 0,
+        y: 0,
+        duration: 0.6,
+        ease: 'elastic.out(1, 0.3)'
+      });
+    };
+
+    magneticButton.addEventListener('mousemove', mouseMove);
+    magneticButton.addEventListener('mouseleave', mouseLeave);
+
+    return () => {
+      magneticButton.removeEventListener('mousemove', mouseMove);
+      magneticButton.removeEventListener('mouseleave', mouseLeave);
+    };
+  }, []);
+
+  const triggerHapticFeedback = () => {
+    if (window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(50);
+    }
+  };
+
   return (
     <div className="bg-[#212121] text-[#E5E7EB] font-body">
       <div className="relative min-h-screen flex flex-col">
@@ -20,7 +82,7 @@ export default function EllipsusPage() {
               </div>
               <nav className="hidden md:flex items-center justify-center flex-1 gap-8">
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center gap-1 hover:text-white transition-colors">
+                  <DropdownMenuTrigger onClick={triggerHapticFeedback} className="flex items-center gap-1 hover:text-white transition-colors">
                     Product <ChevronDown className="h-4 w-4" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
@@ -30,7 +92,7 @@ export default function EllipsusPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center gap-1 hover:text-white transition-colors">
+                  <DropdownMenuTrigger onClick={triggerHapticFeedback} className="flex items-center gap-1 hover:text-white transition-colors">
                     Resources <ChevronDown className="h-4 w-4" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
@@ -42,11 +104,11 @@ export default function EllipsusPage() {
                 <Link href="#" className="hover:text-white transition-colors">About</Link>
               </nav>
               <div className="hidden md:flex items-center gap-4">
-                <Button variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-black">Log in</Button>
-                <Button className="bg-[#111827] text-white hover:bg-gray-800">Sign up</Button>
+                <Button onClick={triggerHapticFeedback} variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-black">Log in</Button>
+                <Button onClick={triggerHapticFeedback} className="bg-[#111827] text-white hover:bg-gray-800">Sign up</Button>
               </div>
               <div className="md:hidden">
-                <Button variant="ghost" size="icon">
+                <Button onClick={triggerHapticFeedback} variant="ghost" size="icon">
                   <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
                   </svg>
@@ -77,8 +139,10 @@ export default function EllipsusPage() {
               Ellipsus is a collaborative writing tool made for human-to-human creativity.
             </p>
             <div className="mt-10">
-              <Button size="lg" className="bg-white text-black hover:bg-gray-200 px-8 py-6 text-lg font-semibold magnetic-button">
-                Join the beta <MoveRight className="ml-2" />
+              <Button ref={magneticButtonRef} onClick={triggerHapticFeedback} size="lg" className="bg-white text-black hover:bg-gray-200 px-8 py-6 text-lg font-semibold magnetic-button">
+                <span className="flex items-center">
+                  Join the beta <MoveRight className="ml-2" />
+                </span>
               </Button>
             </div>
           </div>
@@ -94,5 +158,3 @@ export default function EllipsusPage() {
     </div>
   );
 }
-
-    
