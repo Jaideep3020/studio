@@ -26,12 +26,23 @@ export function Attendance() {
   const stopCamera = () => {
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
+      animationFrameId.current = undefined;
     }
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach(track => track.stop());
       videoRef.current.srcObject = null;
     }
+  };
+  
+  const handleScanFailure = () => {
+    stopCamera();
+    setScanResult('failure');
+    toast({
+      variant: 'destructive',
+      title: 'Invalid QR Code',
+      description: 'This QR code is not for an active lecture. Please try again.',
+    });
   };
 
   const handleScanSuccess = (data: LecturePayload) => {
@@ -49,12 +60,7 @@ export function Attendance() {
           description: `You are checked in for ${data.description}.`,
         });
       } else {
-        setScanResult('failure');
-         toast({
-          variant: 'destructive',
-          title: 'Invalid QR Code',
-          description: 'This QR code is not for an active lecture.',
-        });
+        handleScanFailure();
       }
     } else {
         setScanResult('failure');
@@ -69,7 +75,7 @@ export function Attendance() {
   const handleTryAgain = () => {
     setScanResult('scanning');
     setScannedData(null);
-    setHasCameraPermission(null);
+    setHasCameraPermission(null); // This will re-trigger the permission request and camera stream
   };
 
 
@@ -90,20 +96,38 @@ export function Attendance() {
               });
       
               if (code && code.data) {
+                // We have a QR code, stop the scanning loop to process it.
+                if (animationFrameId.current) {
+                    cancelAnimationFrame(animationFrameId.current);
+                    animationFrameId.current = undefined;
+                }
+                
                 try {
-                  const parsedData = JSON.parse(code.data);
-                  // More robust check to ensure it's our specific QR code
+                  // This is a simple check assuming the QR is just a string.
+                  // For the app, we need to parse it as JSON.
+                  const lecturePayloadString = code.data;
+                  // Let's try parsing it as JSON for our app's lecture format
+                  const parsedData = JSON.parse(lecturePayloadString);
+
                   if (typeof parsedData === 'object' && parsedData !== null && 'id' in parsedData && 'description' in parsedData && typeof parsedData.id === 'string' && parsedData.id.startsWith('lecture_')) {
                     handleScanSuccess(parsedData as LecturePayload);
-                    return; // Stop scanning
+                  } else {
+                    // It's a valid QR code, but not for a lecture
+                    handleScanFailure();
                   }
+
                 } catch (e) {
-                  // QR code is not valid JSON, so we ignore it and continue scanning
+                  // It's a valid QR code but not in JSON format, so it's invalid for us.
+                  handleScanFailure();
                 }
+                return; // Stop the function after processing a valid QR code
               }
             }
         }
-        animationFrameId.current = requestAnimationFrame(tick);
+        // Only request next frame if we are still in scanning mode
+        if (scanResult === 'scanning' && animationFrameId.current !== undefined) {
+             animationFrameId.current = requestAnimationFrame(tick);
+        }
     };
 
     const getCameraPermission = async () => {
