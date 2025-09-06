@@ -2,12 +2,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { CheckCircle, AlertTriangle, Camera } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Camera, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import jsQR from 'jsqr';
 import { Student, LecturePayload } from '@/lib/types';
+import { Button } from '@/components/ui/button';
 
 // Mock student data for this simulation
 const MOCK_STUDENT: Student = { id: 'student_123', name: 'Alex Doe' };
@@ -63,6 +64,12 @@ export function Attendance() {
             description: 'Could not connect to the attendance system. Are both portals open?',
         });
     }
+  };
+
+  const handleTryAgain = () => {
+    setScanResult('scanning');
+    setScannedData(null);
+    setHasCameraPermission(null);
   };
 
 
@@ -155,6 +162,10 @@ export function Attendance() {
                 <AlertTriangle className="h-16 w-16 text-destructive" />
                 <p className="text-lg font-semibold text-destructive">Attendance Failed</p>
                 <p className="text-sm text-muted-foreground">The QR code is invalid or expired. Please try again.</p>
+                 <Button onClick={handleTryAgain} variant="destructive">
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Try Again
+                </Button>
             </div>
         )}
         {scanResult === 'scanning' && (
