@@ -39,7 +39,7 @@ export default function LoginPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Login</CardTitle>
           <CardDescription>
-            {user ? 'Welcome back!' : 'Please sign in to continue.'}
+            {user ? 'Welcome back!' : 'Please sign in with Google to continue.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
