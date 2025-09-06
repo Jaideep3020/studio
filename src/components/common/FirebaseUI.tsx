@@ -2,25 +2,15 @@
 'use client';
 
 import { useEffect } from 'react';
-import { GoogleAuthProvider, EmailAuthProvider } from 'firebase/auth';
+import { GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import * as firebaseui from 'firebaseui';
 import 'firebaseui/dist/firebaseui.css';
 
 export function FirebaseUI() {
   useEffect(() => {
-    const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(auth);
-    
-    const uiConfig = {
-      signInSuccessUrl: '/',
-      signInOptions: [
-        GoogleAuthProvider.PROVIDER_ID,
-      ],
-      // Other config options...
-    };
-
-    ui.start('#firebaseui-auth-container', uiConfig);
-
+    // This component is no longer used, but is kept to prevent breaking imports.
+    // The login logic has been moved to /src/app/login/page.tsx
   }, []);
 
   return <div id="firebaseui-auth-container" />;
