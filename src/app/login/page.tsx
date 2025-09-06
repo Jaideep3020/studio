@@ -45,6 +45,7 @@ export default function LoginPage() {
       
       let title = 'Login Failed';
       let description = 'An unknown error occurred. Please try again.';
+      let shouldShowToast = true;
 
       if (isAuthError(error)) {
         switch (error.code) {
@@ -58,9 +59,10 @@ export default function LoginPage() {
             break;
           case 'auth/operation-not-allowed':
           case 'auth/configuration-not-found':
-            title = 'Configuration Required';
-            description = 'Google Sign-In is not enabled for this app. Please enable it in the Firebase Authentication console under Sign-in method.';
+            title = 'Action Required';
+            description = 'Google Sign-In is not enabled for this app. Please enable it in the Firebase Authentication console under "Sign-in method".';
             setError(description); // Set persistent error message
+            shouldShowToast = false; // Don't show a toast, the alert is enough
             break;
           default:
             description = `An error occurred: ${error.message}`;
@@ -68,8 +70,7 @@ export default function LoginPage() {
         }
       }
 
-      // We only show a toast for non-configuration errors now
-      if (!error) {
+      if (shouldShowToast) {
         toast({
             variant: 'destructive',
             title: title,
