@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Clock, BookOpen, MapPin } from "lucide-react";
+import { Clock, BookOpen, MapPin, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 const classesData = [
@@ -14,20 +14,20 @@ const classesData = [
 ];
 
 export function UpcomingClasses() {
-  const [openItem, setOpenItem] = useState<string | undefined>(undefined);
+  const [openItem, setOpenItem] = useState<string | undefined>('item-0');
 
   return (
-    <Card>
+    <Card className="bg-secondary border-0">
       <CardHeader>
         <CardTitle className="font-headline">Upcoming Classes</CardTitle>
         <CardDescription>Here's what you have for the rest of the day.</CardDescription>
       </CardHeader>
       <CardContent>
-        <Accordion type="single" collapsible value={openItem} onValueChange={setOpenItem}>
+        <Accordion type="single" collapsible value={openItem} onValueChange={setOpenItem} className="space-y-2">
           {classesData.map((item, index) => (
             <AccordionItem value={`item-${index}`} key={index} className="border-b-0">
                 <AccordionTrigger
-                 className={`p-3 rounded-md hover:bg-secondary/80 data-[state=open]:bg-secondary/50 ${openItem === `item-${index}` ? 'bg-secondary/50' : 'bg-secondary/20'}`}
+                 className={`p-3 rounded-md hover:no-underline hover:bg-background/80 data-[state=open]:bg-background bg-background/50`}
                 >
                     <div className="flex items-center justify-between w-full">
                         <div className="flex items-center gap-4 text-left">
@@ -37,14 +37,17 @@ export function UpcomingClasses() {
                             <p className="text-sm text-muted-foreground">{item.time} &bull; {item.teacher}</p>
                             </div>
                         </div>
-                        <Badge className={
-                            item.status === 'Next Up' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
-                        }>
-                            {item.status}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                            <Badge className={
+                                item.status === 'Next Up' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                            }>
+                                {item.status}
+                            </Badge>
+                             <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+                        </div>
                     </div>
                 </AccordionTrigger>
-              <AccordionContent className="p-4 bg-secondary/20 rounded-b-md">
+              <AccordionContent className="p-4 bg-background/50 rounded-b-md">
                 <div className="space-y-3">
                     <div className="flex items-center gap-3">
                         <BookOpen className="h-4 w-4 text-muted-foreground"/>

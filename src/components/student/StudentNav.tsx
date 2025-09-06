@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LayoutDashboard, Users, BookText, BarChart, Settings, GraduationCap, MessageSquareHeart, BookOpen } from 'lucide-react';
+import { LayoutDashboard, BookText, BarChart, Settings, GraduationCap, MessageSquareHeart, BookOpen } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -39,7 +39,7 @@ function NavLinks() {
 
 export function StudentNav() {
   return (
-    <div className="hidden border-r bg-card md:block">
+    <div className="hidden border-r bg-background md:block">
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-16 items-center border-b px-4 lg:px-6">
           <Link href="/" className="flex items-center gap-2 font-semibold text-foreground">

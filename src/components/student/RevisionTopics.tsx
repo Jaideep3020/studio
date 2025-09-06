@@ -12,7 +12,7 @@ const revisionTopics = [
 
 export function RevisionTopics() {
   return (
-    <Card>
+    <Card className="bg-secondary border-0">
       <CardHeader>
         <CardTitle className="font-headline flex items-center gap-2">
             <BrainCircuit className="h-5 w-5 text-primary"/>
@@ -24,7 +24,7 @@ export function RevisionTopics() {
         {revisionTopics.length > 0 ? (
             <ul className="space-y-3">
             {revisionTopics.map((item, index) => (
-                <li key={index} className="flex items-center justify-between p-3 rounded-md bg-secondary/50">
+                <li key={index} className="flex items-center justify-between p-3 rounded-md bg-background/50">
                 <div>
                     <p className="font-medium">{item.topic}</p>
                     <p className="text-sm text-muted-foreground">{item.reason}</p>

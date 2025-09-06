@@ -9,7 +9,7 @@ const userGoal = "Prepare for GATE 2026";
 
 export function StudentGoals() {
   return (
-    <Card>
+    <Card className="bg-secondary border-0">
       <CardHeader className="flex flex-row items-start justify-between">
         <div>
             <CardTitle className="font-headline">My Academic Goal</CardTitle>
@@ -22,7 +22,7 @@ export function StudentGoals() {
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-4 p-4 rounded-lg bg-secondary/50">
+        <div className="flex items-center gap-4 p-4 rounded-lg bg-background/50">
             <Target className="h-8 w-8 text-primary" />
             <p className="text-lg font-semibold">{userGoal}</p>
         </div>

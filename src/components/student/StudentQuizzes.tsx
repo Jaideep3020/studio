@@ -12,7 +12,7 @@ const availableQuizzes: Quiz[] = [
 
 export function StudentQuizzes() {
   return (
-    <Card>
+    <Card className="bg-secondary border-0">
       <CardHeader>
         <CardTitle className="font-headline">Available Quizzes</CardTitle>
         <CardDescription>Tests and quizzes assigned by your teachers.</CardDescription>
@@ -20,7 +20,7 @@ export function StudentQuizzes() {
       <CardContent>
         <ul className="space-y-4">
           {availableQuizzes.map((quiz) => (
-            <li key={quiz.id} className="flex items-center justify-between p-3 rounded-md bg-secondary/50">
+            <li key={quiz.id} className="flex items-center justify-between p-3 rounded-md bg-background/50">
               <div className="flex items-center gap-4">
                 <FileQuestion className="h-5 w-5 text-primary" />
                 <div>

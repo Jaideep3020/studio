@@ -41,7 +41,7 @@ export function Header({ role }: HeaderProps) {
   const brandName = 'ClassZen';
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card px-4 sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
        <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden bg-transparent border-0 hover:bg-accent">
@@ -49,7 +49,7 @@ export function Header({ role }: HeaderProps) {
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="flex flex-col p-0 bg-card border-r-0">
+        <SheetContent side="left" className="flex flex-col p-0 bg-background border-r-0">
           <SheetHeader className="h-16 flex flex-row items-center border-b px-6 space-y-0">
               <Link href="/" className="flex items-center gap-2 font-semibold text-foreground">
                 <GraduationCap className="h-6 w-6 text-primary" />
@@ -63,19 +63,16 @@ export function Header({ role }: HeaderProps) {
       </Sheet>
 
       <div className="w-full flex-1">
-        {/* Search can be hidden for student dashboard as it's not in the design */}
-        {role === 'Teacher' && (
-           <form>
+        <form>
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search..."
-                className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
+                className="w-full appearance-none bg-secondary pl-8 shadow-none md:w-2/3 lg:w-1/3"
               />
             </div>
           </form>
-        )}
       </div>
 
       <DropdownMenu>

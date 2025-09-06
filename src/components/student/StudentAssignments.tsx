@@ -9,7 +9,7 @@ const assignmentsData = [
 
 export function StudentAssignments() {
   return (
-    <Card>
+    <Card className="bg-secondary border-0">
       <CardHeader>
         <CardTitle className="font-headline">Recent Assignments</CardTitle>
         <CardDescription>Keep track of your pending and completed tasks.</CardDescription>
@@ -17,13 +17,13 @@ export function StudentAssignments() {
       <CardContent>
         <ul className="space-y-2">
           {assignmentsData.map((item, index) => (
-            <li key={index} className="flex items-center justify-between p-3 border-b last:border-b-0">
+            <li key={index} className="flex items-center justify-between p-3 border-b border-border/50 last:border-b-0">
               <div>
                 <p className="font-medium">{item.title}</p>
                 <p className="text-sm text-muted-foreground">{item.subject} &bull; Due: {item.dueDate}</p>
               </div>
               <Badge className={
-                item.status === 'Completed' ? 'bg-success text-success-foreground' : 'bg-warning text-warning-foreground'
+                item.status === 'Completed' ? 'bg-green-600 text-white' : 'bg-yellow-500 text-black'
               }>
                 {item.status}
               </Badge>

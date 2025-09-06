@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { markAttendance } from '@/ai/flows/mark-attendance';
 
 // Mock student data for this simulation
-const MOCK_STUDENT: Student = { id: 'student_123', name: 'Alex Doe' };
+const MOCK_STUDENT: Student = { id: 'student_123', name: 'Alex Doe', email: 'alex.doe@example.com' };
 const QR_CODE_VALIDITY_SECONDS = 60;
 
 type ScanResult = 'success' | 'failure' | 'scanning' | 'idle';
@@ -168,7 +168,7 @@ export function Attendance() {
   }, [scanResult, stopCamera, toast, handleScanSuccess, handleScanFailure]);
 
   return (
-    <Card className="text-center">
+    <Card className="text-center bg-secondary border-0">
       <CardHeader>
         <CardTitle className="font-headline">Mark Attendance</CardTitle>
         <CardDescription>Scan the QR code displayed by your teacher.</CardDescription>
