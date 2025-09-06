@@ -106,7 +106,12 @@ export function Attendance() {
 
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.play(); // Use play() to ensure video starts
+          videoRef.current.play().catch(error => {
+            // Ignore interruption errors, as they are expected during navigation or re-renders.
+            if (error.name !== 'AbortError') {
+              console.error('Video play failed:', error);
+            }
+          });
           animationFrameId.current = requestAnimationFrame(tick);
         }
       } catch (error) {
