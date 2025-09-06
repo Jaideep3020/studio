@@ -10,7 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { generateStudyPlan, GenerateStudyPlanInput, GenerateStudyPlanOutput } from '@/ai/flows/generate-study-plan';
-import { BrainCircuit, CalendarPlus, Clock, LoaderCircle, Trash2, Wand2 } from 'lucide-react';
+import { BrainCircuit, CalendarPlus, Clock, LoaderCircle, Trash2, Wand2, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 interface Task {
   id: number;
@@ -105,6 +106,14 @@ export default function MyPlannerPage() {
     <div className="flex min-h-screen w-full flex-col">
       <Header role="Student" />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <div className="mb-4">
+          <Button asChild variant="outline">
+            <Link href="/student/dashboard">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Dashboard
+            </Link>
+          </Button>
+        </div>
         <div className="grid gap-4 md:grid-cols-2 md:gap-8">
           {/* Task Input and List */}
           <Card>

@@ -8,9 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { careerGuidanceFlow } from '@/ai/flows/career-guidance-flow';
-import { LoaderCircle, Send, Sparkles, User } from 'lucide-react';
+import { LoaderCircle, Send, Sparkles, User, ArrowLeft } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import Link from 'next/link';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -52,6 +53,14 @@ export default function CareerGuidancePage() {
     <div className="flex min-h-screen w-full flex-col">
       <Header role="Student" />
       <main className="flex flex-1 flex-col p-4 md:p-8">
+        <div className="mb-4">
+          <Button asChild variant="outline">
+            <Link href="/student/dashboard">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Dashboard
+            </Link>
+          </Button>
+        </div>
         <Card className="flex flex-col flex-1">
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">

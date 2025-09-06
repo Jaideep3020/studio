@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Save } from 'lucide-react';
+import { Save, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 // This is a mock implementation. In a real app, you'd fetch/save this to a database.
 const MOCK_USER_PROFILE = {
@@ -42,6 +43,14 @@ export default function StudentProfilePage() {
     <div className="flex min-h-screen w-full flex-col">
       <Header role="Student" />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <div className="mb-4">
+          <Button asChild variant="outline">
+            <Link href="/student/dashboard">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Dashboard
+            </Link>
+          </Button>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle className="font-headline">My Profile</CardTitle>
