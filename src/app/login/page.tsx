@@ -51,7 +51,7 @@ export default function LoginPage() {
             break;
           case 'auth/network-request-failed':
             title = 'Network Error';
-            description = 'Could not connect to Google. Please check your internet connection and ensure Google Sign-In is enabled in your Firebase project settings.';
+            description = 'Could not connect to Google. Please check your internet connection.';
             break;
           case 'auth/operation-not-allowed':
              title = 'Login Method Disabled';
