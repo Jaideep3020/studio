@@ -8,8 +8,10 @@ import { AddStudentDialog } from '@/components/teacher/AddStudentDialog';
 import { TeacherNav } from '@/components/teacher/TeacherNav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, PlusCircle, School, BookOpen } from 'lucide-react';
+import { Users, PlusCircle, School, BookOpen, Trash2, ChevronDown } from 'lucide-react';
 import type { Class, Student } from '@/lib/types';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 interface ClassWithStudents extends Class {
   students: Student[];
@@ -37,6 +39,17 @@ export default function MyClassesPage() {
             email: studentEmail,
           };
           return { ...c, students: [...c.students, newStudent] };
+        }
+        return c;
+      })
+    );
+  };
+  
+  const handleDropStudent = (classId: string, studentId: string) => {
+    setClasses(prevClasses =>
+      prevClasses.map(c => {
+        if (c.id === classId) {
+          return { ...c, students: c.students.filter(s => s.id !== studentId) };
         }
         return c;
       })
@@ -83,34 +96,62 @@ export default function MyClassesPage() {
                             </AddClassDialog>
                         </div>
                     ) : (
-                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                            {classes.map((classItem) => (
-                                <Card key={classItem.id} className="hover:shadow-md transition-shadow flex flex-col">
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-3">
-                                            <BookOpen className="h-6 w-6 text-primary" />
-                                            {classItem.name}
-                                        </CardTitle>
-                                        <CardDescription>{classItem.subject}</CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="flex-grow flex flex-col justify-between">
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <Users className="h-4 w-4" />
-                                            <span>{classItem.students.length} Students</span>
-                                        </div>
-                                        <div className="mt-4 flex gap-2">
-                                            <AddStudentDialog classId={classItem.id} onStudentAdded={handleAddStudent}>
-                                                <Button size="sm" className="w-full">
-                                                    <PlusCircle className="mr-2 h-4 w-4" />
-                                                    Add Student
-                                                </Button>
-                                            </AddStudentDialog>
-                                            <Button variant="outline" size="sm" className="w-full">View Roster</Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
+                        <Accordion type="multiple" className="w-full grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                          {classes.map((classItem) => (
+                            <Card key={classItem.id} className="hover:shadow-md transition-shadow flex flex-col">
+                              <CardHeader>
+                                <CardTitle className="flex items-center gap-3">
+                                  <BookOpen className="h-6 w-6 text-primary" />
+                                  {classItem.name}
+                                </CardTitle>
+                                <CardDescription>{classItem.subject}</CardDescription>
+                              </CardHeader>
+                              <CardContent className="flex-grow flex flex-col justify-between">
+                                <AccordionItem value={classItem.id} className="border-b-0">
+                                  <AccordionTrigger className="hover:no-underline -mx-6 px-6 py-3 rounded-md hover:bg-accent">
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                      <Users className="h-4 w-4" />
+                                      <span>{classItem.students.length} Student{classItem.students.length !== 1 ? 's' : ''}</span>
+                                      <ChevronDown className="h-4 w-4 transition-transform duration-200" />
+                                    </div>
+                                  </AccordionTrigger>
+                                  <AccordionContent className="pt-4 px-1 -mx-1">
+                                    {classItem.students.length > 0 ? (
+                                      <ul className="space-y-3 max-h-48 overflow-y-auto pr-2">
+                                        {classItem.students.map((student) => (
+                                          <li key={student.id} className="flex items-center justify-between animate-in fade-in">
+                                            <div className="flex items-center gap-3">
+                                              <Avatar className="h-8 w-8">
+                                                <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
+                                              </Avatar>
+                                              <div>
+                                                <p className="font-medium text-sm">{student.name}</p>
+                                                <p className="text-xs text-muted-foreground">{student.email}</p>
+                                              </div>
+                                            </div>
+                                            <Button variant="ghost" size="icon" onClick={() => handleDropStudent(classItem.id, student.id)}>
+                                              <Trash2 className="h-4 w-4 text-destructive" />
+                                            </Button>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    ) : (
+                                      <p className="text-sm text-muted-foreground text-center py-4">No students enrolled yet.</p>
+                                    )}
+                                  </AccordionContent>
+                                </AccordionItem>
+                                <div className="mt-4 flex gap-2">
+                                  <AddStudentDialog classId={classItem.id} onStudentAdded={handleAddStudent}>
+                                    <Button size="sm" className="w-full">
+                                      <PlusCircle className="mr-2 h-4 w-4" />
+                                      Add Student
+                                    </Button>
+                                  </AddStudentDialog>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </Accordion>
                     )}
                 </CardContent>
             </Card>
