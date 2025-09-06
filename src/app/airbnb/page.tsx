@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Castle, ChevronRight, Filter, Globe, Heart, Home, Menu, Search, Star, Tent, Trees, Users, Waves, Wind } from 'lucide-react';
+import { Castle, ChevronRight, Filter, Globe, Heart, Home, Menu, Search, Star, Tent, Trees, Users, Waves, Wind, MountainSnow, Gem } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -15,9 +15,9 @@ const categories = [
     { name: 'Windmills', icon: <Wind className="h-6 w-6" /> },
     { name: 'Countryside', icon: <Home className="h-6 w-6" /> },
     { name: 'Luxe', icon: <Star className="h-6 w-6" /> },
-    { name: 'Ski-in/out', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z" /><path d="M4.14 15.08c2.62-1.57 5.24-1.43 7.86.42 2.74 1.94 5.49 2 8.23.19" /></svg> },
+    { name: 'Ski-in/out', icon: <MountainSnow className="h-6 w-6" /> },
     { name: 'Cabins', icon: <Home className="h-6 w-6" /> },
-    { name: 'OMG!', icon: <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.5 2.1a.5.5 0 0 0-1 0V2a2 2 0 0 0-2 2v0a2 2 0 0 0-2 2v0a2 2 0 0 0-2 2v0a2 2 0 0 0-2 2v8.4a.5.5 0 0 0 .8.4l1.8-1.2a1 1 0 0 1 1.2 0l1.8 1.2a1 1 0 0 0 1.2 0l1.8-1.2a1 1 0 0 1 1.2 0l1.8 1.2a1 1 0 0 0 1.2 0l1.8-1.2a.5.5 0 0 0 .8-.4V10a2 2 0 0 0-2-2h0a2 2 0 0 0-2-2h0a2 2 0 0 0-2-2h0a2 2 0 0 0-2-2Z" /><path d="M8 14v-2" /><path d="M16 14v-2" /><path d="M12 16a2 2 0 0 0-2 2v2h4v-2a2 2 0 0 0-2-2Z" /></svg> },
+    { name: 'OMG!', icon: <Gem className="h-6 w-6" /> },
     { name: 'Camping', icon: <Tent className="h-6 w-6" /> },
 ];
 
