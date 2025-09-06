@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { careerGuidanceFlow } from '@/ai/flows/career-guidance-flow';
-import { LoaderCircle, Send, Sparkles, User, ArrowLeft, BookOpen, TrendingUp, Target, Lightbulb, Bot } from 'lucide-react';
+import { LoaderCircle, Send, Sparkles, User, ArrowLeft, BookOpen, TrendingUp, Target, Lightbulb, Bot, Search } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Link from 'next/link';
@@ -179,12 +179,25 @@ export default function CareerGuidancePage() {
             <p className="text-muted-foreground mt-2 max-w-md">
               Get personalized guidance for your future career path
             </p>
+            
+            <form onSubmit={(e) => handleSendMessage(e)} className="w-full max-w-lg mt-8 flex items-center gap-2">
+                <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Ask about careers, skills, or future job markets..."
+                    className="flex-1"
+                />
+                <Button type="submit">
+                    <Search className="mr-2 h-4 w-4" />
+                    Get Advice
+                </Button>
+            </form>
 
             <Card className="w-full max-w-3xl mt-10 text-left">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3">
                   <Sparkles className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold">Quick Start Topics</h3>
+                  <h3 className="font-semibold">Or start with a topic</h3>
                 </div>
                 <p className="text-muted-foreground text-sm mt-1">
                   Click on any topic to get started with your career exploration
