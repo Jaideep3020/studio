@@ -6,8 +6,10 @@ import { Header } from '@/components/common/Header';
 import { Assignments } from '@/components/teacher/Assignments';
 import { QrCodeGenerator } from '@/components/teacher/QrCodeGenerator';
 import { Schedule } from '@/components/teacher/Schedule';
-import { AttendanceList } from '@/components/teacher/AttendanceList';
+import { AttendanceDashboard } from '@/components/teacher/AttendanceDashboard';
 import { Lecture, Student } from '@/lib/types';
+
+const TOTAL_STUDENTS = 25; // Mock total students for the class
 
 export default function TeacherDashboard() {
   const [activeLecture, setActiveLecture] = useState<Lecture | null>(null);
@@ -48,7 +50,9 @@ export default function TeacherDashboard() {
           </div>
           <div className="lg:col-span-1 grid auto-rows-max items-start gap-4 md:gap-8">
             <QrCodeGenerator onQrCodeGenerated={handleQrCodeGenerated} />
-            {activeLecture && <AttendanceList students={attendedStudents} />}
+            {activeLecture && (
+                <AttendanceDashboard attendedStudents={attendedStudents} totalStudents={TOTAL_STUDENTS} />
+            )}
           </div>
         </div>
       </main>
