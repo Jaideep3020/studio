@@ -9,7 +9,7 @@ import { Attendance } from '@/components/student/Attendance';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { CalendarCheck, ArrowRight } from 'lucide-react';
+import { CalendarCheck, ArrowRight, MessageSquareHeart } from 'lucide-react';
 
 
 export default function StudentDashboard() {
@@ -34,6 +34,25 @@ export default function StudentDashboard() {
                     <Link href="/student/my-planner">
                         <Button>
                             Go to Planner
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                    </Link>
+                </CardContent>
+              </Card>
+               <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline flex items-center gap-2">
+                        <MessageSquareHeart className="h-5 w-5 text-primary"/>
+                        AI Career Guidance
+                    </CardTitle>
+                    <CardDescription>
+                        Chat with our AI counselor to explore your future career paths.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Link href="/student/career-guidance">
+                        <Button>
+                            Start Chatting
                             <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                     </Link>
