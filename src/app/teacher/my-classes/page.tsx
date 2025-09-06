@@ -4,22 +4,42 @@
 import { useState } from 'react';
 import { Header } from '@/components/common/Header';
 import { AddClassDialog } from '@/components/teacher/AddClassDialog';
+import { AddStudentDialog } from '@/components/teacher/AddStudentDialog';
 import { TeacherNav } from '@/components/teacher/TeacherNav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Users, PlusCircle, School, BookOpen } from 'lucide-react';
-import type { Class } from '@/lib/types';
+import type { Class, Student } from '@/lib/types';
+
+interface ClassWithStudents extends Class {
+  students: Student[];
+}
 
 export default function MyClassesPage() {
-  const [classes, setClasses] = useState<Class[]>([]);
+  const [classes, setClasses] = useState<ClassWithStudents[]>([]);
 
-  const handleAddClass = (newClass: Omit<Class, 'id' | 'studentCount'>) => {
-    const newClassWithDetails: Class = {
+  const handleAddClass = (newClass: Omit<Class, 'id'>) => {
+    const newClassWithDetails: ClassWithStudents = {
       id: `class_${Date.now()}`,
       ...newClass,
-      studentCount: 0, // Default to 0 students for a new class
+      students: [],
     };
     setClasses((prevClasses) => [...prevClasses, newClassWithDetails]);
+  };
+  
+  const handleAddStudent = (classId: string, studentName: string) => {
+    setClasses(prevClasses => 
+      prevClasses.map(c => {
+        if (c.id === classId) {
+          const newStudent: Student = {
+            id: `student_${Date.now()}`,
+            name: studentName,
+          };
+          return { ...c, students: [...c.students, newStudent] };
+        }
+        return c;
+      })
+    );
   };
 
   return (
@@ -64,7 +84,7 @@ export default function MyClassesPage() {
                     ) : (
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                             {classes.map((classItem) => (
-                                <Card key={classItem.id} className="hover:shadow-md transition-shadow">
+                                <Card key={classItem.id} className="hover:shadow-md transition-shadow flex flex-col">
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-3">
                                             <BookOpen className="h-6 w-6 text-primary" />
@@ -72,10 +92,19 @@ export default function MyClassesPage() {
                                         </CardTitle>
                                         <CardDescription>{classItem.subject}</CardDescription>
                                     </CardHeader>
-                                    <CardContent>
+                                    <CardContent className="flex-grow flex flex-col justify-between">
                                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                             <Users className="h-4 w-4" />
-                                            <span>{classItem.studentCount} Students</span>
+                                            <span>{classItem.students.length} Students</span>
+                                        </div>
+                                        <div className="mt-4 flex gap-2">
+                                            <AddStudentDialog classId={classItem.id} onStudentAdded={handleAddStudent}>
+                                                <Button size="sm" className="w-full">
+                                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                                    Add Student
+                                                </Button>
+                                            </AddStudentDialog>
+                                            <Button variant="outline" size="sm" className="w-full">View Roster</Button>
                                         </div>
                                     </CardContent>
                                 </Card>
