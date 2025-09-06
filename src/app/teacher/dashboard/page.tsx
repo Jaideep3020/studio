@@ -1,9 +1,42 @@
+
+'use client';
+
+import { useState } from 'react';
 import { Header } from '@/components/common/Header';
 import { Assignments } from '@/components/teacher/Assignments';
 import { QrCodeGenerator } from '@/components/teacher/QrCodeGenerator';
 import { Schedule } from '@/components/teacher/Schedule';
+import { AttendanceList } from '@/components/teacher/AttendanceList';
+import { Lecture, Student } from '@/lib/types';
 
 export default function TeacherDashboard() {
+  const [activeLecture, setActiveLecture] = useState<Lecture | null>(null);
+  const [attendedStudents, setAttendedStudents] = useState<Student[]>([]);
+
+  const handleQrCodeGenerated = (lecture: Lecture) => {
+    setActiveLecture(lecture);
+    setAttendedStudents([]); // Reset for new lecture
+  };
+
+  const handleStudentAttended = (student: Student) => {
+    // Prevent duplicate entries
+    if (!attendedStudents.some((s) => s.id === student.id)) {
+      setAttendedStudents((prev) => [...prev, student]);
+    }
+  };
+
+  // This function would be passed to the student component in a real app
+  // For this simulation, we'll call it from the student page via window object
+  if (typeof window !== 'undefined') {
+    (window as any).markStudentAttendance = (student: Student, lectureId: string) => {
+      if (activeLecture?.id === lectureId) {
+        handleStudentAttended(student);
+        return true;
+      }
+      return false;
+    };
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header role="Teacher" />
@@ -14,7 +47,8 @@ export default function TeacherDashboard() {
             <Assignments />
           </div>
           <div className="lg:col-span-1 grid auto-rows-max items-start gap-4 md:gap-8">
-            <QrCodeGenerator />
+            <QrCodeGenerator onQrCodeGenerated={handleQrCodeGenerated} />
+            {activeLecture && <AttendanceList students={attendedStudents} />}
           </div>
         </div>
       </main>

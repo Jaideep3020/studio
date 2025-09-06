@@ -1,60 +1,105 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Camera } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import jsQR from 'jsqr';
+import { Student, LecturePayload } from '@/lib/types';
+
+// Mock student data for this simulation
+const MOCK_STUDENT: Student = { id: 'student_123', name: 'Alex Doe' };
 
 export function Attendance() {
-  const [attendanceMarked, setAttendanceMarked] = useState(false);
-  const [scannedData, setScannedData] = useState<string | null>(null);
+  const [scanResult, setScanResult] = useState<'success' | 'failure' | 'scanning'>('scanning');
+  const [scannedData, setScannedData] = useState<LecturePayload | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { toast } = useToast();
   const animationFrameId = useRef<number>();
+  const { toast } = useToast();
 
   const stopCamera = () => {
+    if (animationFrameId.current) {
+      cancelAnimationFrame(animationFrameId.current);
+    }
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach(track => track.stop());
       videoRef.current.srcObject = null;
     }
-    if (animationFrameId.current) {
-      cancelAnimationFrame(animationFrameId.current);
-    }
   };
 
-  const tick = () => {
-    if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-
-      if (ctx) {
-        canvas.height = video.videoHeight;
-        canvas.width = video.videoWidth;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: "dontInvert",
+  const handleScanSuccess = (data: LecturePayload) => {
+    stopCamera();
+    setScannedData(data);
+    
+    // In a real app, this would be a server action call.
+    // We simulate it by calling a function on the window object of the teacher's page.
+    if (typeof window !== 'undefined' && (window as any).markStudentAttendance) {
+      const success = (window as any).markStudentAttendance(MOCK_STUDENT, data.id);
+      if (success) {
+        setScanResult('success');
+        toast({
+          variant: 'default',
+          className: 'bg-success text-success-foreground',
+          title: 'Attendance Marked!',
+          description: `You are checked in for ${data.description}.`,
         });
-
-        if (code) {
-          setAttendanceMarked(true);
-          setScannedData(code.data);
-          stopCamera();
-          return;
-        }
+      } else {
+        setScanResult('failure');
+         toast({
+          variant: 'destructive',
+          title: 'Invalid QR Code',
+          description: 'This QR code is not for an active lecture.',
+        });
       }
+    } else {
+        setScanResult('failure');
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Could not connect to the attendance system. Are both portals open?',
+        });
     }
-    animationFrameId.current = requestAnimationFrame(tick);
   };
+
 
   useEffect(() => {
+    const tick = () => {
+        if (videoRef.current && videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA && canvasRef.current) {
+            const video = videoRef.current;
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext('2d');
+    
+            if (ctx) {
+            canvas.height = video.videoHeight;
+            canvas.width = video.videoWidth;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                inversionAttempts: "dontInvert",
+            });
+    
+            if (code) {
+                try {
+                    const parsedData: LecturePayload = JSON.parse(code.data);
+                    if (parsedData.id && parsedData.description) {
+                        handleScanSuccess(parsedData);
+                        return; // Stop scanning
+                    }
+                } catch (e) {
+                    // Not a valid JSON QR code, ignore
+                }
+            }
+            }
+        }
+        animationFrameId.current = requestAnimationFrame(tick);
+    };
+
     const getCameraPermission = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
@@ -77,14 +122,15 @@ export function Attendance() {
       }
     };
 
-    if (!attendanceMarked) {
+    if (scanResult === 'scanning') {
       getCameraPermission();
     }
 
     return () => {
       stopCamera();
     };
-  }, [toast, attendanceMarked]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scanResult, toast]);
 
 
   return (
@@ -94,13 +140,21 @@ export function Attendance() {
         <CardDescription>Scan the QR code displayed by your teacher.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center justify-center gap-4">
-        {attendanceMarked ? (
+        {scanResult === 'success' && (
           <div className="flex flex-col items-center justify-center gap-4 p-8 bg-success/10 rounded-lg w-full">
             <CheckCircle className="h-16 w-16 text-success" />
             <p className="text-lg font-semibold text-success">Attendance Marked!</p>
-            <p className="text-sm text-muted-foreground">You're all set for {scannedData || 'your class'}.</p>
+            <p className="text-sm text-muted-foreground">You're all set for {scannedData?.description || 'your class'}.</p>
           </div>
-        ) : (
+        )}
+        {scanResult === 'failure' && (
+            <div className="flex flex-col items-center justify-center gap-4 p-8 bg-destructive/10 rounded-lg w-full">
+                <AlertTriangle className="h-16 w-16 text-destructive" />
+                <p className="text-lg font-semibold text-destructive">Attendance Failed</p>
+                <p className="text-sm text-muted-foreground">The QR code is invalid or expired. Please try again.</p>
+            </div>
+        )}
+        {scanResult === 'scanning' && (
           <>
             <div className="p-4 border-2 border-dashed rounded-lg w-full relative">
               <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay muted playsInline />
@@ -117,10 +171,10 @@ export function Attendance() {
                   </AlertDescription>
                 </Alert>
             )}
-            <Button className="w-full" disabled={!hasCameraPermission}>
-              <Camera className="mr-2 h-4 w-4" />
-              Scanning for QR Code...
-            </Button>
+             <div className="flex items-center text-muted-foreground">
+                <Camera className="mr-2 h-4 w-4 animate-pulse" />
+                <span>Scanning for QR Code...</span>
+            </div>
           </>
         )}
       </CardContent>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -9,12 +10,18 @@ import { generateLectureQrCode } from '@/ai/flows/generate-lecture-qr-code';
 import { QrCode, Zap, LoaderCircle } from 'lucide-react';
 import Image from 'next/image';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import type { Lecture } from '@/lib/types';
 
-export function QrCodeGenerator() {
+interface QrCodeGeneratorProps {
+    onQrCodeGenerated: (lecture: Lecture) => void;
+}
+
+export function QrCodeGenerator({ onQrCodeGenerated }: QrCodeGeneratorProps) {
   const [lectureDescription, setLectureDescription] = useState('Physics 101 - Introduction to Mechanics');
   const [qrCodeDataUri, setQrCodeDataUri] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentLecture, setCurrentLecture] = useState<Lecture | null>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -23,9 +30,16 @@ export function QrCodeGenerator() {
     setQrCodeDataUri(null);
 
     try {
-      const result = await generateLectureQrCode({ lectureDescription });
+      const lectureId = `lecture_${Date.now()}`;
+      const lecturePayload = JSON.stringify({ id: lectureId, description: lectureDescription });
+
+      const result = await generateLectureQrCode({ lectureDescription: lecturePayload });
+
       if (result.qrCodeDataUri) {
         setQrCodeDataUri(result.qrCodeDataUri);
+        const newLecture = { id: lectureId, description: lectureDescription };
+        setCurrentLecture(newLecture);
+        onQrCodeGenerated(newLecture);
       } else {
         setError('Failed to generate QR code. The AI did not return valid data.');
       }
@@ -75,13 +89,13 @@ export function QrCodeGenerator() {
             </Alert>
         )}
         
-        {qrCodeDataUri && (
+        {qrCodeDataUri && currentLecture && (
           <div className="mt-6 text-center">
             <h3 className="font-semibold mb-2">Scan for Attendance</h3>
             <div className="p-4 border rounded-lg inline-block bg-white">
               <Image src={qrCodeDataUri} alt="Generated QR Code" width={200} height={200} />
             </div>
-            <p className="text-sm text-muted-foreground mt-2">{lectureDescription}</p>
+            <p className="text-sm text-muted-foreground mt-2">{currentLecture.description}</p>
           </div>
         )}
       </CardContent>
