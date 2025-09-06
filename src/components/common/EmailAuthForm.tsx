@@ -119,9 +119,9 @@ export function EmailAuthForm() {
   
   const fillMockData = (mockRole: 'student' | 'teacher') => {
     if (mockRole === 'student') {
-        setName('Alex Johnson');
-        setEmail('alex.j@example.com');
-        setPassword('password123');
+        setName('Jaideep Korrapati');
+        setEmail('korrapatijaideep@gmail.com');
+        setPassword('jaideep');
         setRole('student');
     } else {
         setName('Dr. Evelyn Reed');
