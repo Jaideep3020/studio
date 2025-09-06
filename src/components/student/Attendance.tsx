@@ -37,8 +37,6 @@ export function Attendance() {
     stopCamera();
     setScannedData(data);
     
-    // In a real app, this would be a server action call.
-    // We simulate it by calling a function on the window object of the teacher's page.
     if (typeof window !== 'undefined' && (window as any).markStudentAttendance) {
       const success = (window as any).markStudentAttendance(MOCK_STUDENT, data.id);
       if (success) {
@@ -76,25 +74,25 @@ export function Attendance() {
             const ctx = canvas.getContext('2d');
     
             if (ctx) {
-            canvas.height = video.videoHeight;
-            canvas.width = video.videoWidth;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                inversionAttempts: "dontInvert",
-            });
-    
-            if (code) {
-                try {
-                    const parsedData: LecturePayload = JSON.parse(code.data);
-                    if (parsedData.id && parsedData.description) {
-                        handleScanSuccess(parsedData);
-                        return; // Stop scanning
-                    }
-                } catch (e) {
-                    // Not a valid JSON QR code, ignore
-                }
-            }
+              canvas.height = video.videoHeight;
+              canvas.width = video.videoWidth;
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+              const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                  inversionAttempts: "dontInvert",
+              });
+      
+              if (code) {
+                  try {
+                      const parsedData: LecturePayload = JSON.parse(code.data);
+                      if (parsedData.id && parsedData.description) {
+                          handleScanSuccess(parsedData);
+                          return; // Stop scanning only on success
+                      }
+                  } catch (e) {
+                      // Not a valid JSON QR code, ignore and continue scanning
+                  }
+              }
             }
         }
         animationFrameId.current = requestAnimationFrame(tick);
@@ -107,9 +105,8 @@ export function Attendance() {
 
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.addEventListener('loadeddata', () => {
-            animationFrameId.current = requestAnimationFrame(tick);
-          });
+          videoRef.current.play(); // Use play() to ensure video starts
+          animationFrameId.current = requestAnimationFrame(tick);
         }
       } catch (error) {
         console.error('Error accessing camera:', error);
@@ -130,7 +127,7 @@ export function Attendance() {
       stopCamera();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scanResult, toast]);
+  }, [scanResult]);
 
 
   return (
@@ -156,7 +153,7 @@ export function Attendance() {
         )}
         {scanResult === 'scanning' && (
           <>
-            <div className="p-4 border-2 border-dashed rounded-lg w-full relative">
+            <div className="p-4 border-2 border-dashed rounded-lg w-full relative overflow-hidden">
               <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay muted playsInline />
               <canvas ref={canvasRef} className="hidden" />
                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
