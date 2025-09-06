@@ -16,7 +16,7 @@ import { auth, db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { LogOut, AlertCircle, LoaderCircle } from 'lucide-react';
+import { AlertCircle, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 function isAuthError(error: unknown): error is AuthError {
@@ -37,7 +37,6 @@ export default function LoginPage() {
 
       if (currentUser) {
         setUser(currentUser);
-        // User is signed in, look up their role in Firestore
         try {
           const userDocRef = doc(db, "users", currentUser.uid);
           const userDocSnap = await getDoc(userDocRef);
@@ -56,8 +55,6 @@ export default function LoginPage() {
               setUser(null);
             }
           } else {
-            // This is a critical error: user is authenticated but has no data in Firestore.
-            // This can happen if the user record wasn't created properly on sign-up.
             setError("User data not found. Please sign up again or contact support.");
             await signOut(auth);
             setUser(null);
@@ -87,29 +84,25 @@ export default function LoginPage() {
     } catch (error) {
       console.error('Error signing in with Google', error);
       
-      let title = 'Login Failed';
-      let description = 'An unknown error occurred. Please try again.';
+      let errorMessage = 'An unknown error occurred. Please try again.';
       let shouldShowToast = true;
 
       if (isAuthError(error)) {
         switch (error.code) {
           case 'auth/popup-closed-by-user':
-            title = 'Login Canceled';
-            description = 'You closed the sign-in window before completing the process.';
+            errorMessage = 'You closed the sign-in window before completing the process.';
             break;
           case 'auth/network-request-failed':
-            title = 'Network Error';
-            description = 'Could not connect to Google. Please check your internet connection.';
+            errorMessage = 'Could not connect to Google. Please check your internet connection.';
             break;
           case 'auth/operation-not-allowed':
           case 'auth/configuration-not-found':
-            title = 'Action Required';
-            description = 'Google Sign-In is not enabled for this app. Please enable it in the Firebase Authentication console under "Sign-in method".';
-            setError(description);
-            shouldShowToast = false;
+            errorMessage = 'Google Sign-In is not enabled for this app. Please enable it in the Firebase Authentication console under "Sign-in method".';
+            setError(errorMessage);
+            shouldShowToast = false; // Prevent toast for this specific error
             break;
           default:
-            description = `An error occurred: ${error.message}`;
+            errorMessage = `An error occurred: ${error.message}`;
             break;
         }
       }
@@ -117,8 +110,8 @@ export default function LoginPage() {
       if (shouldShowToast) {
         toast({
             variant: 'destructive',
-            title: title,
-            description: description,
+            title: 'Login Failed',
+            description: errorMessage,
         });
       }
       setLoading(false);
@@ -140,7 +133,7 @@ export default function LoginPage() {
     }
   };
   
-  if (loading) {
+  if (loading && !user) {
     return (
         <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-background text-foreground">
             <div className="flex items-center gap-2 text-muted-foreground">
@@ -165,7 +158,7 @@ export default function LoginPage() {
               {error && (
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Login Error</AlertTitle>
+                  <AlertTitle>Action Required</AlertTitle>
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
