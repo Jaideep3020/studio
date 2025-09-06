@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { GraduationCap, User, LogIn } from 'lucide-react';
-import { Header } from '@/components/common/Header';
 
 export default function HomePage() {
   return (
