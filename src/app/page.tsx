@@ -10,9 +10,9 @@ export default function LoginPage() {
       <div className="text-center mb-12">
         <div className="flex justify-center items-center gap-4 mb-4">
           <GraduationCap className="w-16 h-16 text-primary" />
-          <h1 className="text-6xl font-bold">EduTrack</h1>
+          <h1 className="text-6xl font-bold">ClassZen</h1>
         </div>
-        <p className="text-muted-foreground text-xl">Student Management System</p>
+        <p className="text-muted-foreground text-xl">Next-Gen Student Management</p>
       </div>
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
         <RoleCard

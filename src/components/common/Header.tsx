@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,11 +7,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
-import { LifeBuoy, LogOut, Settings, GraduationCap, Menu, User } from 'lucide-react';
+import { LifeBuoy, LogOut, Settings, GraduationCap, Menu, User, Search } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import { Button } from '../ui/button';
 import { MobileNav } from '../teacher/TeacherNav';
-import { Badge } from '../ui/badge';
+import { Input } from '../ui/input';
 
 
 interface HeaderProps {
@@ -35,25 +34,51 @@ export function Header({ role }: HeaderProps) {
           <div className="flex h-16 items-center border-b px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold text-foreground">
               <GraduationCap className="h-6 w-6 text-primary" />
-              <span className="text-lg">EduTrack</span>
+              <span className="text-lg">ClassZen</span>
             </Link>
           </div>
           <MobileNav />
         </SheetContent>
       </Sheet>
 
-      <div className="w-full flex-1 flex justify-end">
-        <div className="flex items-center gap-4">
-          <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">{role}</Badge>
-          <div className="flex items-center gap-3">
-            <User className="h-5 w-5 text-muted-foreground" />
-            <div>
-              <p className="text-sm font-semibold">System Administrator</p>
-              <p className="text-xs text-muted-foreground">{role}</p>
-            </div>
+      <div className="w-full flex-1">
+        <form>
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search..."
+              className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
+            />
           </div>
-        </div>
+        </form>
       </div>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="secondary" size="icon" className="rounded-full">
+            <User className="h-5 w-5" />
+            <span className="sr-only">Toggle user menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Settings</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <LifeBuoy className="mr-2 h-4 w-4" />
+            <span>Support</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Logout</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </header>
   );
 }
