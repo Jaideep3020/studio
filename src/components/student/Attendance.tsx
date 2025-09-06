@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { CheckCircle, AlertTriangle, Camera, RefreshCw } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Camera, RefreshCw, XCircle, QrCode } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,10 +13,10 @@ import { Button } from '@/components/ui/button';
 // Mock student data for this simulation
 const MOCK_STUDENT: Student = { id: 'student_123', name: 'Alex Doe' };
 
-type ScanResult = 'success' | 'failure' | 'scanning';
+type ScanResult = 'success' | 'failure' | 'scanning' | 'idle';
 
 export function Attendance() {
-  const [scanResult, setScanResult] = useState<ScanResult>('scanning');
+  const [scanResult, setScanResult] = useState<ScanResult>('idle');
   const [scannedData, setScannedData] = useState<LecturePayload | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   
@@ -73,10 +73,15 @@ export function Attendance() {
   }, [stopCamera, toast, handleScanFailure]);
 
   const handleTryAgain = () => {
-    setScanResult('scanning');
+    setScanResult('idle');
     setScannedData(null);
-    setHasCameraPermission(null); // This will re-trigger the permission request and camera stream
+    setHasCameraPermission(null);
   };
+  
+  const handleCancelScan = () => {
+    stopCamera();
+    setScanResult('idle');
+  }
 
   useEffect(() => {
     const tick = () => {
@@ -102,7 +107,7 @@ export function Attendance() {
                 
                 try {
                   const parsedData = JSON.parse(code.data);
-                  if (typeof parsedData === 'object' && parsedData !== null && 'id' in parsedData && typeof parsedData.id === 'string' && parsedData.id.startsWith('lecture_')) {
+                  if (typeof parsedData === 'object' && parsedData !== null && 'id' in parsedData && 'description' in parsedData && typeof parsedData.id === 'string' && parsedData.id.startsWith('lecture_')) {
                     handleScanSuccess(parsedData as LecturePayload);
                   } else {
                     handleScanFailure('This QR code is not a valid attendance code.');
@@ -134,6 +139,7 @@ export function Attendance() {
       } catch (error) {
         console.error('Error accessing camera:', error);
         setHasCameraPermission(false);
+        setScanResult('failure');
         toast({
           variant: 'destructive',
           title: 'Camera Access Denied',
@@ -158,6 +164,16 @@ export function Attendance() {
         <CardDescription>Scan the QR code displayed by your teacher.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center justify-center gap-4">
+        {scanResult === 'idle' && (
+            <div className="flex flex-col items-center justify-center gap-4 p-8 w-full">
+                <Camera className="h-16 w-16 text-muted-foreground" />
+                <p className="text-muted-foreground">Click the button to start scanning.</p>
+                <Button onClick={() => { setHasCameraPermission(null); setScanResult('scanning'); }}>
+                    <QrCode className="mr-2 h-4 w-4" />
+                    Scan Attendance QR
+                </Button>
+            </div>
+        )}
         {scanResult === 'success' && (
           <div className="flex flex-col items-center justify-center gap-4 p-8 bg-success/10 rounded-lg w-full">
             <CheckCircle className="h-16 w-16 text-success" />
@@ -168,8 +184,10 @@ export function Attendance() {
         {scanResult === 'failure' && (
             <div className="flex flex-col items-center justify-center gap-4 p-8 bg-destructive/10 rounded-lg w-full">
                 <AlertTriangle className="h-16 w-16 text-destructive" />
-                <p className="text-lg font-semibold text-destructive">Attendance Failed</p>
-                <p className="text-sm text-muted-foreground">The QR code is invalid or expired. Please try again.</p>
+                <p className="text-lg font-semibold text-destructive">Scan Failed</p>
+                <p className="text-sm text-muted-foreground max-w-xs">
+                    Could not mark attendance. Please ensure camera permissions are enabled and try again.
+                </p>
                  <Button onClick={handleTryAgain} variant="destructive">
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Try Again
@@ -194,9 +212,13 @@ export function Attendance() {
                 </Alert>
             )}
              <div className="flex items-center text-muted-foreground">
-                <Camera className="mr-2 h-4 w-4 animate-pulse" />
+                <QrCode className="mr-2 h-4 w-4 animate-pulse" />
                 <span>Scanning for QR Code...</span>
             </div>
+            <Button variant="outline" size="sm" onClick={handleCancelScan}>
+                <XCircle className="mr-2 h-4 w-4" />
+                Cancel
+            </Button>
           </>
         )}
       </CardContent>
