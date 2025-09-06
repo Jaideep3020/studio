@@ -54,12 +54,12 @@ export function EmailAuthForm() {
         case 'auth/network-request-failed':
             setError('Network error. Please check your internet connection.');
             break;
-        case 'auth/configuration-not-found':
         case 'auth/operation-not-allowed':
-          setError('Email/Password sign-in is not enabled. Please enable it in your Firebase project console under Authentication > Sign-in method.');
+        case 'auth/configuration-not-found':
+          setError('Email/Password sign-in is not enabled for this project. Please go to your Firebase Console -> Authentication -> Sign-in method and enable the Email/Password provider.');
           break;
         default:
-          setError('An unexpected error occurred. Please try again.');
+          setError(`An unexpected error occurred: ${error.code}`);
           break;
       }
     } else {
