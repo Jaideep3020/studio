@@ -8,6 +8,7 @@ import { QrCodeGenerator } from '@/components/teacher/QrCodeGenerator';
 import { Schedule } from '@/components/teacher/Schedule';
 import { AttendanceDashboard } from '@/components/teacher/AttendanceDashboard';
 import { Lecture, Student } from '@/lib/types';
+import { TeacherNav } from '@/components/teacher/TeacherNav';
 
 const TOTAL_STUDENTS = 25; // Mock total students for the class
 
@@ -40,22 +41,25 @@ export default function TeacherDashboard() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <Header role="Teacher" />
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2 grid auto-rows-max items-start gap-4 md:gap-8">
-            <Schedule />
-            <Assignments />
+    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+      <TeacherNav />
+      <div className="flex flex-col">
+        <Header role="Teacher" />
+        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-muted/40">
+          <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-2 grid auto-rows-max items-start gap-4 md:gap-8">
+              <Schedule />
+              <Assignments />
+            </div>
+            <div className="lg:col-span-1 grid auto-rows-max items-start gap-4 md:gap-8">
+              <QrCodeGenerator onQrCodeGenerated={handleQrCodeGenerated} />
+              {activeLecture && (
+                  <AttendanceDashboard attendedStudents={attendedStudents} totalStudents={TOTAL_STUDENTS} />
+              )}
+            </div>
           </div>
-          <div className="lg:col-span-1 grid auto-rows-max items-start gap-4 md:gap-8">
-            <QrCodeGenerator onQrCodeGenerated={handleQrCodeGenerated} />
-            {activeLecture && (
-                <AttendanceDashboard attendedStudents={attendedStudents} totalStudents={TOTAL_STUDENTS} />
-            )}
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

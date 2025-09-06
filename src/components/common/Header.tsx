@@ -19,10 +19,10 @@ export function Header({ role }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
-      <Link href="/" className="flex items-center gap-2">
+      <div className="hidden md:flex items-center gap-2">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-primary"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><path d="m15.5 8.5-4 4-2-2"/></svg>
         <span className="text-xl font-bold text-primary font-headline">ClassZen</span>
-      </Link>
+      </div>
       <div className="ml-auto flex items-center gap-4">
         <span className="text-sm text-muted-foreground hidden sm:inline">Logged in as {role}</span>
         <DropdownMenu>
