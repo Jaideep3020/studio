@@ -3,20 +3,17 @@
 
 import { useEffect, useState } from 'react';
 import {
-  getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
   onAuthStateChanged,
-  signOut,
   User,
 } from 'firebase/auth';
-import { app } from '@/lib/firebase';
+import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogIn, LogOut } from 'lucide-react';
-
-const auth = getAuth(app);
+import { LogOut } from 'lucide-react';
+import { FirebaseUI } from '@/components/common/FirebaseUI';
+import { signOut } from 'firebase/auth';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -28,19 +25,10 @@ export default function LoginPage() {
     return () => unsubscribe();
   }, []);
 
-  const handleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error('Error signing in with Google', error);
-    }
-  };
-
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-    } catch (error)
+    } catch (error) {
       console.error('Error signing out', error);
     }
   };
@@ -49,9 +37,9 @@ export default function LoginPage() {
     <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-background text-foreground">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Firebase Authentication</CardTitle>
+          <CardTitle className="text-2xl font-bold">Login</CardTitle>
           <CardDescription>
-            {user ? 'You are signed in.' : 'Please sign in to continue.'}
+            {user ? 'Welcome back!' : 'Please sign in to continue.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
@@ -63,15 +51,17 @@ export default function LoginPage() {
               </Avatar>
               <h2 className="text-xl font-semibold">{user.displayName}</h2>
               <p className="text-muted-foreground">{user.email}</p>
-              <Button onClick={handleSignOut} variant="outline" className="mt-6">
-                <LogOut className="mr-2 h-4 w-4" /> Sign Out
-              </Button>
+              <div className="flex flex-col gap-2 mt-6">
+                 <Button asChild>
+                    <Link href="/">Go to Homepage</Link>
+                 </Button>
+                 <Button onClick={handleSignOut} variant="outline">
+                    <LogOut className="mr-2 h-4 w-4" /> Sign Out
+                 </Button>
+              </div>
             </div>
           ) : (
-            <Button onClick={handleSignIn} className="w-full">
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 48 48" width="48px" height="48px"><path fill="#fbc02d" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12	s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20	s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#e53935" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039	l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4caf50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36	c-5.222,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1565c0" d="M43.611,20.083L43.595,20L42,20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574	l6.19,5.238C39.986,36.43,44,30.836,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
-              Sign in with Google
-            </Button>
+            <FirebaseUI />
           )}
         </CardContent>
       </Card>
