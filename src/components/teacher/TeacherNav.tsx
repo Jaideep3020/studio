@@ -2,17 +2,17 @@
 'use client';
 
 import Link from 'next/link';
-import { LayoutDashboard, Users, BookText, CalendarDays, Settings, GraduationCap, QrCode } from 'lucide-react';
+import { LayoutDashboard, Users, BookText, BarChart, Settings, GraduationCap, QrCode } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/teacher/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/teacher/my-classes', icon: Users, label: 'User Management' },
-  { href: '/teacher/attendance', icon: BookText, label: 'Institution Reports' },
-  { href: '/teacher/reports', icon: CalendarDays, label: 'Timetable Management' },
+  { href: '/teacher/my-classes', icon: Users, label: 'My Classes' },
+  { href: '/teacher/attendance', icon: BookText, label: 'Attendance' },
+  { href: '/teacher/reports', icon: BarChart, label: 'Reports' },
   { href: '/teacher/qr-code', icon: QrCode, label: 'QR Code' },
-  { href: '#', icon: Settings, label: 'System Settings' },
+  { href: '#', icon: Settings, label: 'Settings' },
 ];
 
 function NavLinks() {
@@ -44,8 +44,8 @@ export function TeacherNav() {
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-16 items-center border-b px-4 lg:px-6">
           <Link href="/" className="flex items-center gap-2 font-semibold text-foreground">
-            <GraduationCap className="h-6 w-6 text-red-500" />
-            <span className="text-lg">Admin Dashboard</span>
+            <GraduationCap className="h-6 w-6 text-primary" />
+            <span className="text-lg">ClassZen</span>
           </Link>
         </div>
         <div className="flex-1">
