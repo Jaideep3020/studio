@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { LifeBuoy, LogOut, Settings, GraduationCap, Menu, User, Search } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '../ui/sheet';
 import { Button } from '../ui/button';
 import { MobileNav } from '../teacher/TeacherNav';
 import { Input } from '../ui/input';
@@ -47,12 +47,14 @@ export function Header({ role }: HeaderProps) {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="flex flex-col p-0 bg-card border-r-0">
-          <div className="flex h-16 items-center border-b px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold text-foreground">
-              <GraduationCap className="h-6 w-6 text-primary" />
-              <span className="text-lg">ClassZen</span>
-            </Link>
-          </div>
+          <SheetHeader className="h-16 flex flex-row items-center border-b px-6 space-y-0">
+              <Link href="/" className="flex items-center gap-2 font-semibold text-foreground">
+                <GraduationCap className="h-6 w-6 text-primary" />
+                <span className="text-lg">ClassZen</span>
+              </Link>
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <SheetDescription className="sr-only">Main navigation links for the application.</SheetDescription>
+          </SheetHeader>
           {role === 'Teacher' && <MobileNav />}
         </SheetContent>
       </Sheet>
