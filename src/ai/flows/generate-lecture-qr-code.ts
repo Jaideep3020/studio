@@ -25,30 +25,22 @@ export async function generateLectureQrCode(input: GenerateLectureQrCodeInput): 
   return generateLectureQrCodeFlow(input);
 }
 
-const prompt = ai.definePrompt({
-  name: 'generateLectureQrCodePrompt',
-  input: {schema: GenerateLectureQrCodeInputSchema},
-  output: {schema: GenerateLectureQrCodeOutputSchema},
-  prompt: `You are an assistant that generates QR codes for lectures. The user will provide a description of the lecture, and you will generate a QR code that encodes the lecture description. The QR code should be returned as a data URI.
-
-Lecture Description: {{{lectureDescription}}}`,
-  model: googleAI.model('gemini-2.5-flash-image-preview'),
-});
-
 const generateLectureQrCodeFlow = ai.defineFlow(
   {
     name: 'generateLectureQrCodeFlow',
     inputSchema: GenerateLectureQrCodeInputSchema,
     outputSchema: GenerateLectureQrCodeOutputSchema,
   },
-  async input => {
-    const {media, output} = await prompt(input);
+  async (input) => {
+    const { media } = await ai.generate({
+      model: googleAI.model('imagen-4.0-fast-generate-001'),
+      prompt: `Generate a QR code that encodes the following text: ${input.lectureDescription}`,
+    });
+    
     if (media) {
       return { qrCodeDataUri: media.url };
     }
-    if (output) {
-      return output;
-    }
+    
     throw new Error('Could not generate QR code');
   }
 );
