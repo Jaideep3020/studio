@@ -9,6 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/googleai';
 
 const GenerateLectureQrCodeInputSchema = z.object({
   lectureDescription: z.string().describe('The description of the lecture (e.g., \'Physics 101 - Introduction to Mechanics\').'),
@@ -30,10 +31,8 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateLectureQrCodeOutputSchema},
   prompt: `You are an assistant that generates QR codes for lectures. The user will provide a description of the lecture, and you will generate a QR code that encodes the lecture description. The QR code should be returned as a data URI.
 
-Lecture Description: {{{lectureDescription}}}
-
-Here is the QR code:
-{{media type="qr" content=lectureDescription width=256 height=256}}`,
+Lecture Description: {{{lectureDescription}}}`,
+  model: googleAI.model('gemini-2.5-flash-image-preview'),
 });
 
 const generateLectureQrCodeFlow = ai.defineFlow(
@@ -43,7 +42,13 @@ const generateLectureQrCodeFlow = ai.defineFlow(
     outputSchema: GenerateLectureQrCodeOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    const {media, output} = await prompt(input);
+    if (media) {
+      return { qrCodeDataUri: media.url };
+    }
+    if (output) {
+      return output;
+    }
+    throw new Error('Could not generate QR code');
   }
 );

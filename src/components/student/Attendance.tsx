@@ -1,15 +1,47 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, QrCode } from 'lucide-react';
+import { CheckCircle, Camera } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export function Attendance() {
   const [attendanceMarked, setAttendanceMarked] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setHasCameraPermission(true);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to use this app.',
+        });
+      }
+    };
+
+    getCameraPermission();
+  }, [toast]);
 
   const handleMarkAttendance = () => {
     setAttendanceMarked(true);
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+    }
   };
 
   return (
@@ -27,11 +59,20 @@ export function Attendance() {
           </div>
         ) : (
           <>
-            <div className="p-4 border-2 border-dashed rounded-lg">
-                <QrCode className="h-24 w-24 text-muted-foreground" />
+            <div className="p-4 border-2 border-dashed rounded-lg w-full">
+              <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay muted playsInline />
             </div>
-            <Button onClick={handleMarkAttendance} className="w-full">
-              Simulate Scan
+            {hasCameraPermission === false && (
+                <Alert variant="destructive">
+                  <AlertTitle>Camera Access Required</AlertTitle>
+                  <AlertDescription>
+                    Please allow camera access to use this feature.
+                  </AlertDescription>
+                </Alert>
+            )}
+            <Button onClick={handleMarkAttendance} className="w-full" disabled={!hasCameraPermission}>
+              <Camera className="mr-2 h-4 w-4" />
+              Scan QR Code
             </Button>
           </>
         )}
