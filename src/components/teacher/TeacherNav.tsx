@@ -2,13 +2,14 @@
 'use client';
 
 import Link from 'next/link';
-import { LayoutDashboard, Users, BookText, BarChart, Settings, GraduationCap, QrCode } from 'lucide-react';
+import { LayoutDashboard, Users, BookText, BarChart, Settings, GraduationCap, QrCode, UserPlus } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/teacher/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/teacher/my-classes', icon: Users, label: 'My Classes' },
+  { href: '/teacher/enroll-student', icon: UserPlus, label: 'Enroll Student' },
   { href: '/teacher/attendance', icon: BookText, label: 'Attendance' },
   { href: '/teacher/reports', icon: BarChart, label: 'Reports' },
   { href: '/teacher/qr-code', icon: QrCode, label: 'QR Code' },
