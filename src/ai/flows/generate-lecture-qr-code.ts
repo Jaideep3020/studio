@@ -26,6 +26,7 @@ export type GenerateLectureQrCodeOutput = z.infer<typeof GenerateLectureQrCodeOu
 
 export async function generateLectureQrCode(input: GenerateLectureQrCodeInput): Promise<GenerateLectureQrCodeOutput> {
   try {
+    // Correctly stringify the object payload for the QR code
     const qrCodeDataUri = await QRCode.toDataURL(JSON.stringify(input.lectureDescription));
     return { qrCodeDataUri };
   } catch (err) {
