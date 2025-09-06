@@ -3,15 +3,16 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { generateLectureQrCode } from '@/ai/flows/generate-lecture-qr-code';
-import { QrCode, LoaderCircle } from 'lucide-react';
+import { QrCode, LoaderCircle, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { Lecture } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface QrCodeGeneratorProps {
     onQrCodeGenerated: (lecture: Lecture, qrCodeDataUri: string) => void;
+    activeLecture: Lecture | null;
 }
 
 const availableClasses = [
@@ -21,7 +22,7 @@ const availableClasses = [
     'English Literature 101 - Shakespeare',
 ]
 
-export function QrCodeGenerator({ onQrCodeGenerated }: QrCodeGeneratorProps) {
+export function QrCodeGenerator({ onQrCodeGenerated, activeLecture }: QrCodeGeneratorProps) {
   const [lectureDescription, setLectureDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +60,7 @@ export function QrCodeGenerator({ onQrCodeGenerated }: QrCodeGeneratorProps) {
     <Card>
       <CardHeader>
         <CardTitle>Generate QR Code</CardTitle>
+        <CardDescription>Select a class to start a new attendance session.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="grid w-full items-center gap-4">
@@ -83,9 +85,19 @@ export function QrCodeGenerator({ onQrCodeGenerated }: QrCodeGeneratorProps) {
             ) : (
               <QrCode className="mr-2 h-4 w-4" />
             )}
-            {isLoading ? 'Generating...' : 'Generate QR Code'}
+            {isLoading ? 'Generating...' : 'Start Session & Generate QR'}
           </Button>
         </form>
+
+        {activeLecture && (
+            <Alert variant="default" className="mt-4 bg-success/10 border-success/30">
+                <CheckCircle className="h-4 w-4 text-success" />
+                <AlertTitle className="text-success">Session Active</AlertTitle>
+                <AlertDescription>
+                   An attendance session for "{activeLecture.description}" is currently active.
+                </AlertDescription>
+            </Alert>
+        )}
 
         {error && (
             <Alert variant="destructive" className="mt-4">

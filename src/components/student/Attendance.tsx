@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { CheckCircle, AlertTriangle, Camera, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -13,8 +13,10 @@ import { Button } from '@/components/ui/button';
 // Mock student data for this simulation
 const MOCK_STUDENT: Student = { id: 'student_123', name: 'Alex Doe' };
 
+type ScanResult = 'success' | 'failure' | 'scanning';
+
 export function Attendance() {
-  const [scanResult, setScanResult] = useState<'success' | 'failure' | 'scanning'>('scanning');
+  const [scanResult, setScanResult] = useState<ScanResult>('scanning');
   const [scannedData, setScannedData] = useState<LecturePayload | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   
@@ -23,7 +25,7 @@ export function Attendance() {
   const animationFrameId = useRef<number>();
   const { toast } = useToast();
 
-  const stopCamera = () => {
+  const stopCamera = useCallback(() => {
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
       animationFrameId.current = undefined;
@@ -33,22 +35,23 @@ export function Attendance() {
       stream.getTracks().forEach(track => track.stop());
       videoRef.current.srcObject = null;
     }
-  };
+  }, []);
   
-  const handleScanFailure = () => {
+  const handleScanFailure = useCallback((message: string) => {
     stopCamera();
     setScanResult('failure');
     toast({
       variant: 'destructive',
-      title: 'Invalid QR Code',
-      description: 'This QR code is not for an active lecture. Please try again.',
+      title: 'Attendance Failed',
+      description: message,
     });
-  };
+  }, [stopCamera, toast]);
 
-  const handleScanSuccess = (data: LecturePayload) => {
+  const handleScanSuccess = useCallback((data: LecturePayload) => {
     stopCamera();
     setScannedData(data);
     
+    // Check if the teacher's portal function is available
     if (typeof window !== 'undefined' && (window as any).markStudentAttendance) {
       const success = (window as any).markStudentAttendance(MOCK_STUDENT, data.id);
       if (success) {
@@ -60,24 +63,20 @@ export function Attendance() {
           description: `You are checked in for ${data.description}.`,
         });
       } else {
-        handleScanFailure();
+        // This means the QR was valid but rejected by the teacher portal (e.g., wrong class)
+        handleScanFailure('This QR code is not for the currently active lecture.');
       }
     } else {
-        setScanResult('failure');
-        toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'Could not connect to the attendance system. Are both portals open?',
-        });
+        // This means the student portal is open but the teacher's isn't
+        handleScanFailure('Could not connect to the attendance system. Are both portals open?');
     }
-  };
+  }, [stopCamera, toast, handleScanFailure]);
 
   const handleTryAgain = () => {
     setScanResult('scanning');
     setScannedData(null);
     setHasCameraPermission(null); // This will re-trigger the permission request and camera stream
   };
-
 
   useEffect(() => {
     const tick = () => {
@@ -96,36 +95,26 @@ export function Attendance() {
               });
       
               if (code && code.data) {
-                // We have a QR code, stop the scanning loop to process it.
                 if (animationFrameId.current) {
                     cancelAnimationFrame(animationFrameId.current);
                     animationFrameId.current = undefined;
                 }
                 
                 try {
-                  // This is a simple check assuming the QR is just a string.
-                  // For the app, we need to parse it as JSON.
-                  const lecturePayloadString = code.data;
-                  // Let's try parsing it as JSON for our app's lecture format
-                  const parsedData = JSON.parse(lecturePayloadString);
-
-                  if (typeof parsedData === 'object' && parsedData !== null && 'id' in parsedData && 'description' in parsedData && typeof parsedData.id === 'string' && parsedData.id.startsWith('lecture_')) {
+                  const parsedData = JSON.parse(code.data);
+                  if (typeof parsedData === 'object' && parsedData !== null && 'id' in parsedData && typeof parsedData.id === 'string' && parsedData.id.startsWith('lecture_')) {
                     handleScanSuccess(parsedData as LecturePayload);
                   } else {
-                    // It's a valid QR code, but not for a lecture
-                    handleScanFailure();
+                    handleScanFailure('This QR code is not a valid attendance code.');
                   }
-
                 } catch (e) {
-                  // It's a valid QR code but not in JSON format, so it's invalid for us.
-                  handleScanFailure();
+                  handleScanFailure('The scanned QR code has an invalid format.');
                 }
-                return; // Stop the function after processing a valid QR code
+                return;
               }
             }
         }
-        // Only request next frame if we are still in scanning mode
-        if (scanResult === 'scanning' && animationFrameId.current !== undefined) {
+        if (animationFrameId.current !== undefined) {
              animationFrameId.current = requestAnimationFrame(tick);
         }
     };
@@ -138,10 +127,7 @@ export function Attendance() {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.play().catch(error => {
-            // Ignore interruption errors, as they are expected during navigation or re-renders.
-            if (error.name !== 'AbortError') {
-              console.error('Video play failed:', error);
-            }
+            if (error.name !== 'AbortError') console.error('Video play failed:', error);
           });
           animationFrameId.current = requestAnimationFrame(tick);
         }
@@ -163,9 +149,7 @@ export function Attendance() {
     return () => {
       stopCamera();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scanResult]);
-
+  }, [scanResult, stopCamera, toast, handleScanSuccess, handleScanFailure]);
 
   return (
     <Card className="text-center">
