@@ -1,34 +1,50 @@
+
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { GraduationCap, User } from 'lucide-react';
+import { GraduationCap, User, LogIn } from 'lucide-react';
+import { Header } from '@/components/common/Header';
 
-export default function LoginPage() {
+export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-background text-foreground">
-      <div className="text-center mb-12">
-        <div className="flex justify-center items-center gap-4 mb-4">
-          <GraduationCap className="w-16 h-16 text-primary" />
-          <h1 className="text-6xl font-bold">ClassZen</h1>
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
+       <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-card px-4 sm:px-6">
+         <div className="flex items-center gap-2 font-semibold text-foreground">
+              <GraduationCap className="h-6 w-6 text-primary" />
+              <span className="text-lg">ClassZen</span>
+            </div>
+            <Button asChild>
+                <Link href="/login">
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Login
+                </Link>
+            </Button>
+       </header>
+        <main className="flex flex-1 flex-col items-center justify-center p-8">
+        <div className="text-center mb-12">
+            <div className="flex justify-center items-center gap-4 mb-4">
+            <GraduationCap className="w-16 h-16 text-primary" />
+            <h1 className="text-6xl font-bold">ClassZen</h1>
+            </div>
+            <p className="text-muted-foreground text-xl">Next-Gen Student Management</p>
         </div>
-        <p className="text-muted-foreground text-xl">Next-Gen Student Management</p>
-      </div>
-      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
-        <RoleCard
-          role="Teacher"
-          description="Manage your classes, generate attendance codes, and create assignments."
-          icon={<GraduationCap className="w-12 h-12 text-primary" />}
-          href="/teacher/dashboard"
-        />
-        <RoleCard
-          role="Student"
-          description="View your schedule, submit assignments, and mark your attendance."
-          icon={<User className="w-12 h-12 text-primary" />}
-          href="/student/dashboard"
-        />
-      </div>
-    </main>
+        <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
+            <RoleCard
+            role="Teacher"
+            description="Manage your classes, generate attendance codes, and create assignments."
+            icon={<GraduationCap className="w-12 h-12 text-primary" />}
+            href="/teacher/dashboard"
+            />
+            <RoleCard
+            role="Student"
+            description="View your schedule, submit assignments, and mark your attendance."
+            icon={<User className="w-12 h-12 text-primary" />}
+            href="/student/dashboard"
+            />
+        </div>
+        </main>
+    </div>
   );
 }
 

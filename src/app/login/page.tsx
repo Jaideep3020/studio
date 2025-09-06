@@ -40,7 +40,7 @@ export default function LoginPage() {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-    } catch (error) {
+    } catch (error)
       console.error('Error signing out', error);
     }
   };
