@@ -8,21 +8,57 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
-import { LifeBuoy, LogOut, Settings } from 'lucide-react';
+import { LifeBuoy, LogOut, Search, Settings } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import { Button } from '../ui/button';
+import { TeacherNav, MobileNav } from '../teacher/TeacherNav';
+import { Package2, Menu } from 'lucide-react';
+
 
 interface HeaderProps {
   role: 'Teacher' | 'Student';
+  showSearch?: boolean;
 }
 
-export function Header({ role }: HeaderProps) {
+export function Header({ role, showSearch = false }: HeaderProps) {
   const userInitial = role.charAt(0);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
-      <div className="hidden md:flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6 text-primary"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><path d="m15.5 8.5-4 4-2-2"/></svg>
-        <span className="text-xl font-bold text-primary font-headline">ClassZen</span>
+       <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle navigation menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="flex flex-col p-0">
+          <div className="flex h-16 items-center border-b px-6">
+            <Link href="/" className="flex items-center gap-2 font-semibold">
+              <Package2 className="h-6 w-6 text-primary" />
+              <span className="">ClassZen</span>
+            </Link>
+          </div>
+          <MobileNav />
+        </SheetContent>
+      </Sheet>
+
+      <div className="w-full flex-1">
+        {showSearch && (
+           <form>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search..."
+                className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
+              />
+            </div>
+          </form>
+        )}
       </div>
+      
       <div className="ml-auto flex items-center gap-4">
         <span className="text-sm text-muted-foreground hidden sm:inline">Logged in as {role}</span>
         <DropdownMenu>

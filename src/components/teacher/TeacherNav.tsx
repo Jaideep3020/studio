@@ -2,11 +2,8 @@
 'use client';
 
 import Link from 'next/link';
-import { BarChart, CheckSquare, Users, Menu, Package2 } from 'lucide-react';
+import { BarChart, CheckSquare, Users, Package2 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -15,11 +12,10 @@ const navItems = [
   { href: '/teacher/reports', icon: BarChart, label: 'Reports' },
 ];
 
-export function TeacherNav() {
+function NavLinks() {
   const pathname = usePathname();
-
-  const renderNavLinks = (isMobile = false) => (
-    <nav className={cn('grid items-start text-sm font-medium', isMobile ? 'gap-4 px-2' : 'gap-2')}>
+  return (
+    <>
       {navItems.map((item) => (
         <Link
           key={item.label}
@@ -33,50 +29,34 @@ export function TeacherNav() {
           {item.label}
         </Link>
       ))}
-    </nav>
-  );
-
-  return (
-    <>
-      <div className="hidden border-r bg-background md:block">
-        <div className="flex h-full max-h-screen flex-col gap-2">
-          <div className="flex h-16 items-center border-b px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Package2 className="h-6 w-6 text-primary" />
-              <span className="">ClassZen Teacher</span>
-            </Link>
-          </div>
-          <div className="flex-1 py-4">
-            {renderNavLinks()}
-          </div>
-        </div>
-      </div>
-      <div className="md:hidden sticky top-0 z-40">
-        <Sheet>
-          <SheetTrigger asChild>
-            <div className="flex items-center p-4 bg-background border-b">
-              <Button variant="outline" size="icon" className="shrink-0">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
-               <div className="flex-1 text-center">
-                 <h1 className="font-semibold text-lg">Dashboard</h1>
-               </div>
-            </div>
-          </SheetTrigger>
-          <SheetContent side="left" className="flex flex-col">
-            <div className="flex h-[60px] items-center border-b px-6">
-              <Link href="/" className="flex items-center gap-2 font-semibold">
-                <Package2 className="h-6 w-6 text-primary" />
-                <span>ClassZen</span>
-              </Link>
-            </div>
-            <div className="py-4">
-              {renderNavLinks(true)}
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
     </>
   );
+}
+
+export function TeacherNav() {
+  return (
+    <div className="hidden border-r bg-background md:block">
+      <div className="flex h-full max-h-screen flex-col gap-2">
+        <div className="flex h-16 items-center border-b px-4 lg:px-6">
+          <Link href="/" className="flex items-center gap-2 font-semibold">
+            <Package2 className="h-6 w-6 text-primary" />
+            <span className="">ClassZen Teacher</span>
+          </Link>
+        </div>
+        <div className="flex-1">
+          <nav className="grid items-start gap-2 px-2 text-sm font-medium lg:px-4">
+            <NavLinks />
+          </nav>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function MobileNav() {
+  return (
+     <nav className="grid gap-2 text-lg font-medium p-4">
+      <NavLinks />
+    </nav>
+  )
 }

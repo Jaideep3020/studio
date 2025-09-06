@@ -44,7 +44,7 @@ export default function TeacherDashboard() {
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <TeacherNav />
       <div className="flex flex-col">
-        <Header role="Teacher" />
+        <Header role="Teacher" showSearch />
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-muted/40">
           <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2 grid auto-rows-max items-start gap-4 md:gap-8">
