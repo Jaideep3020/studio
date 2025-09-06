@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import jsQR from 'jsqr';
 import { Student, LecturePayload } from '@/lib/types';
 import { Button } from '@/components/ui/button';
+import { markAttendance } from '@/ai/flows/mark-attendance';
 
 // Mock student data for this simulation
 const MOCK_STUDENT: Student = { id: 'student_123', name: 'Alex Doe' };
@@ -48,13 +49,14 @@ export function Attendance() {
     });
   }, [stopCamera, toast]);
 
-  const handleScanSuccess = useCallback((data: LecturePayload) => {
+  const handleScanSuccess = useCallback(async (data: LecturePayload) => {
     stopCamera();
     setScannedData(data);
     
-    if (typeof window !== 'undefined' && (window as any).markStudentAttendance) {
-      const success = (window as any).markStudentAttendance(MOCK_STUDENT, data.id);
-      if (success) {
+    try {
+      const result = await markAttendance({ lectureId: data.id, student: MOCK_STUDENT });
+      
+      if (result.success) {
         setScanResult('success');
         toast({
           variant: 'default',
@@ -63,10 +65,11 @@ export function Attendance() {
           description: `You are checked in for ${data.description}.`,
         });
       } else {
-        handleScanFailure('This QR code is not for the currently active lecture.');
+        handleScanFailure(result.message || 'The QR code is not for the currently active lecture.');
       }
-    } else {
-        handleScanFailure('Could not connect to the attendance system. Are both portals open?');
+    } catch (error) {
+      console.error('Error calling markAttendance flow:', error);
+      handleScanFailure('An error occurred while communicating with the server.');
     }
   }, [stopCamera, toast, handleScanFailure]);
 

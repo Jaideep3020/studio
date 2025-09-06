@@ -9,6 +9,9 @@ import { QrCode, LoaderCircle, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { Lecture } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { db } from '@/lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+
 
 interface QrCodeGeneratorProps {
     onQrCodeGenerated: (lecture: Lecture, qrCodeDataUri: string) => void;
@@ -40,6 +43,14 @@ export function QrCodeGenerator({ onQrCodeGenerated, activeLecture }: QrCodeGene
       const timestamp = Date.now();
       const lectureId = `lecture_${timestamp}`;
       const lecturePayload = { id: lectureId, description: lectureDescription, timestamp };
+
+      // Create a document in Firestore for this attendance session
+      await setDoc(doc(db, 'attendance', lectureId), {
+        lectureId: lectureId,
+        description: lectureDescription,
+        createdAt: new Date(timestamp),
+        presentStudents: [],
+      });
 
       const result = await generateLectureQrCode({ lectureDescription: lecturePayload });
 

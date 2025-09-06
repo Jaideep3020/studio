@@ -7,7 +7,8 @@ import { QrCodeGenerator } from '@/components/teacher/QrCodeGenerator';
 import { TeacherNav } from '@/components/teacher/TeacherNav';
 import { AttendanceDashboard } from '@/components/teacher/AttendanceDashboard';
 import type { Lecture, Student } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
+import { db } from '@/lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 // Mock total students for the selected class
 const MOCK_TOTAL_STUDENTS = 25;
@@ -16,39 +17,32 @@ export default function QrCodePage() {
   const [activeLecture, setActiveLecture] = useState<Lecture | null>(null);
   const [qrCodeDataUri, setQrCodeDataUri] = useState<string | null>(null);
   const [attendedStudents, setAttendedStudents] = useState<Student[]>([]);
-  const { toast } = useToast();
 
   const handleQrCodeGenerated = (lecture: Lecture, dataUri: string) => {
     setActiveLecture(lecture);
     setQrCodeDataUri(dataUri);
-    setAttendedStudents([]); // Reset attendance when a new QR is generated
+    setAttendedStudents([]); // Reset local state when a new QR is generated
   };
   
+  // Listen for real-time updates from Firestore
   useEffect(() => {
-    // This function will be called by the student's portal
-    (window as any).markStudentAttendance = (student: Student, lectureId: string): boolean => {
-      if (activeLecture && lectureId === activeLecture.id) {
-        // Prevent duplicate entries
-        if (attendedStudents.some(s => s.id === student.id)) {
-            return true; // Already marked, count as success
-        }
-        
-        setAttendedStudents((prev) => [...prev, student]);
-        toast({
-          title: 'Student Checked In!',
-          description: `${student.name} has been marked as present.`,
-          className: 'bg-success text-success-foreground',
-        });
-        return true;
-      }
-      return false; // QR code does not match active lecture
-    };
+    if (!activeLecture) return;
 
-    // Cleanup function
-    return () => {
-      delete (window as any).markStudentAttendance;
-    };
-  }, [activeLecture, attendedStudents, toast]);
+    const unsub = onSnapshot(doc(db, "attendance", activeLecture.id), (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        // Ensure presentStudents exists and is an array before setting
+        const students = data.presentStudents || [];
+        setAttendedStudents(students as Student[]);
+      } else {
+        console.log("No such document!");
+      }
+    });
+
+    // Cleanup subscription on component unmount or when activeLecture changes
+    return () => unsub();
+  }, [activeLecture]);
+
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
