@@ -6,10 +6,8 @@
  * - GenerateLectureQrCodeInput - The input type for the generateLectureQrCode function.
  * - GenerateLectureQrCodeOutput - The return type for the generateLectureQrCode function.
  */
-
-import {ai} from '@/ai/genkit';
+import QRCode from 'qrcode';
 import {z} from 'genkit';
-import {googleAI} from '@genkit-ai/googleai';
 
 const GenerateLectureQrCodeInputSchema = z.object({
   lectureDescription: z.string().describe('The description of the lecture (e.g., \'Physics 101 - Introduction to Mechanics\').'),
@@ -22,25 +20,11 @@ const GenerateLectureQrCodeOutputSchema = z.object({
 export type GenerateLectureQrCodeOutput = z.infer<typeof GenerateLectureQrCodeOutputSchema>;
 
 export async function generateLectureQrCode(input: GenerateLectureQrCodeInput): Promise<GenerateLectureQrCodeOutput> {
-  return generateLectureQrCodeFlow(input);
-}
-
-const generateLectureQrCodeFlow = ai.defineFlow(
-  {
-    name: 'generateLectureQrCodeFlow',
-    inputSchema: GenerateLectureQrCodeInputSchema,
-    outputSchema: GenerateLectureQrCodeOutputSchema,
-  },
-  async (input) => {
-    const { media } = await ai.generate({
-      model: googleAI.model('imagen-4.0-fast-generate-001'),
-      prompt: `Generate a QR code that encodes the following text: ${input.lectureDescription}`,
-    });
-    
-    if (media) {
-      return { qrCodeDataUri: media.url };
-    }
-    
+  try {
+    const qrCodeDataUri = await QRCode.toDataURL(input.lectureDescription);
+    return { qrCodeDataUri };
+  } catch (err) {
+    console.error(err);
     throw new Error('Could not generate QR code');
   }
-);
+}
