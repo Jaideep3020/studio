@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -13,7 +12,8 @@ import Link from 'next/link';
 import { LifeBuoy, LogOut, Settings, GraduationCap, Menu, User, Search } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '../ui/sheet';
 import { Button } from '../ui/button';
-import { MobileNav } from '../teacher/TeacherNav';
+import { MobileNav as TeacherMobileNav } from '../teacher/TeacherNav';
+import { MobileNav as StudentMobileNav } from '../student/StudentNav';
 import { Input } from '../ui/input';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -36,6 +36,9 @@ export function Header({ role }: HeaderProps) {
       // You could add a toast notification here to inform the user of the error.
     }
   };
+  
+  const NavComponent = role === 'Teacher' ? TeacherMobileNav : StudentMobileNav;
+  const brandName = role === 'Teacher' ? 'ClassZen' : 'EduTrack';
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card px-4 sm:px-6">
@@ -50,26 +53,29 @@ export function Header({ role }: HeaderProps) {
           <SheetHeader className="h-16 flex flex-row items-center border-b px-6 space-y-0">
               <Link href="/" className="flex items-center gap-2 font-semibold text-foreground">
                 <GraduationCap className="h-6 w-6 text-primary" />
-                <span className="text-lg">ClassZen</span>
+                <span className="text-lg">{brandName}</span>
               </Link>
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <SheetDescription className="sr-only">Main navigation links for the application.</SheetDescription>
           </SheetHeader>
-          {role === 'Teacher' && <MobileNav />}
+          <NavComponent />
         </SheetContent>
       </Sheet>
 
       <div className="w-full flex-1">
-        <form>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-            />
-          </div>
-        </form>
+        {/* Search can be hidden for student dashboard as it's not in the design */}
+        {role === 'Teacher' && (
+           <form>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search..."
+                className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
+              />
+            </div>
+          </form>
+        )}
       </div>
 
       <DropdownMenu>
