@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { generateLectureQrCode } from '@/ai/flows/generate-lecture-qr-code';
@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { db } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
+const REGENERATION_INTERVAL_MS = 10000;
 
 interface QrCodeGeneratorProps {
     onQrCodeGenerated: (lecture: Lecture, qrCodeDataUri: string) => void;
@@ -29,6 +30,34 @@ export function QrCodeGenerator({ onQrCodeGenerated, activeLecture }: QrCodeGene
   const [lectureDescription, setLectureDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const regenerationInterval = useRef<NodeJS.Timeout | null>(null);
+
+  const stopRegeneration = () => {
+    if (regenerationInterval.current) {
+      clearInterval(regenerationInterval.current);
+      regenerationInterval.current = null;
+    }
+  };
+
+  const generateAndDisplayQrCode = async (lecture: Lecture) => {
+    try {
+      const timestamp = Date.now();
+      const lecturePayload = { id: lecture.id, description: lecture.description, timestamp };
+      
+      const result = await generateLectureQrCode({ lectureDescription: lecturePayload });
+
+      if (result.qrCodeDataUri) {
+        onQrCodeGenerated(lecture, result.qrCodeDataUri);
+      } else {
+        throw new Error('The AI did not return valid QR code data.');
+      }
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
+      setError(`Failed to generate QR code: ${errorMessage}`);
+      stopRegeneration();
+      console.error(e);
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -36,37 +65,45 @@ export function QrCodeGenerator({ onQrCodeGenerated, activeLecture }: QrCodeGene
         setError('Please select a class to generate a QR code.');
         return;
     }
+    
     setIsLoading(true);
     setError(null);
+    stopRegeneration(); // Stop any previous timers
 
     try {
-      const timestamp = Date.now();
-      const lectureId = `lecture_${timestamp}`;
-      const lecturePayload = { id: lectureId, description: lectureDescription, timestamp };
+      const initialTimestamp = Date.now();
+      const lectureId = `lecture_${initialTimestamp}`;
+      const newLecture = { id: lectureId, description: lectureDescription };
 
       // Create a document in Firestore for this attendance session
       await setDoc(doc(db, 'attendance', lectureId), {
         lectureId: lectureId,
         description: lectureDescription,
-        createdAt: new Date(timestamp),
+        createdAt: new Date(initialTimestamp),
         presentStudents: [],
       });
+      
+      await generateAndDisplayQrCode(newLecture);
+      
+      // Start the regeneration interval
+      regenerationInterval.current = setInterval(() => {
+        generateAndDisplayQrCode(newLecture);
+      }, REGENERATION_INTERVAL_MS);
 
-      const result = await generateLectureQrCode({ lectureDescription: lecturePayload });
-
-      if (result.qrCodeDataUri) {
-        const newLecture = { id: lectureId, description: lectureDescription };
-        onQrCodeGenerated(newLecture, result.qrCodeDataUri);
-      } else {
-        setError('Failed to generate QR code. The AI did not return valid data.');
-      }
     } catch (e) {
-      setError('An error occurred while generating the QR code. Please try again.');
+      setError('An error occurred while starting the session. Please try again.');
       console.error(e);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Cleanup interval on component unmount
+  useEffect(() => {
+    return () => {
+      stopRegeneration();
+    };
+  }, []);
 
   return (
     <Card>
@@ -106,7 +143,7 @@ export function QrCodeGenerator({ onQrCodeGenerated, activeLecture }: QrCodeGene
                 <CheckCircle className="h-4 w-4 text-success" />
                 <AlertTitle className="text-success">Session Active</AlertTitle>
                 <AlertDescription>
-                   An attendance session for "{activeLecture.description}" is currently active.
+                   An attendance session for "{activeLecture.description}" is currently active. The QR code will refresh automatically.
                 </AlertDescription>
             </Alert>
         )}
