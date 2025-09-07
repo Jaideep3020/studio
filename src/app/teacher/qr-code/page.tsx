@@ -19,9 +19,12 @@ export default function QrCodePage() {
   const [attendedStudents, setAttendedStudents] = useState<Student[]>([]);
 
   const handleQrCodeGenerated = (lecture: Lecture, dataUri: string) => {
+    // Only reset the student list if it's a new lecture session
+    if (activeLecture?.id !== lecture.id) {
+        setAttendedStudents([]);
+    }
     setActiveLecture(lecture);
     setQrCodeDataUri(dataUri);
-    setAttendedStudents([]); // Reset local state when a new QR is generated
   };
   
   // Listen for real-time updates from Firestore
