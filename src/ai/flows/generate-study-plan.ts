@@ -45,18 +45,18 @@ const studyPlanPrompt = ai.definePrompt({
   input: { schema: GenerateStudyPlanInputSchema },
   output: { schema: GenerateStudyPlanOutputSchema },
   prompt: `
-    You are an expert academic planner. Your goal is to create an optimized study schedule for a student.
+    You are an expert academic planner. Your goal is to create a customized, hour-by-hour study timetable for a student.
 
-    Analyze the student's task list, including their deadlines, and their available study slots.
+    Analyze the student's task list, their deadlines, and their available study slots.
     
-    Your task is to generate a detailed, minute-by-minute schedule that fits the tasks into the available time slots.
+    Your task is to generate a detailed, minute-by-minute schedule that fits the tasks into the available time slots to create a structured timetable.
 
     Instructions:
     1. Prioritize tasks with earlier deadlines.
-    2. Break down longer tasks if necessary, but try to keep related work in contiguous blocks.
-    3. Include short 5-10 minute breaks every 45-60 minutes to prevent burnout. Label these as "Break".
-    4. Fill the available time slots as efficiently as possible.
-    5. The output must be a valid schedule. The time format should be "HH:MM - HH:MM".
+    2. Break down longer tasks into manageable study blocks if necessary.
+    3. Include short 5-10 minute breaks every 45-60 minutes to prevent burnout. Label these activities as "Break".
+    4. Fill the available time slots as efficiently as possible, creating a continuous timetable for each slot.
+    5. The output must be a valid schedule. The time format for each item should be a clear range, like "HH:MM - HH:MM".
     
     Student's Tasks:
     {{#each tasks}}
