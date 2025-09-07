@@ -4,7 +4,7 @@
 
 ClassZen is a modern, full-stack web application designed to streamline classroom management for teachers and enhance the learning experience for students. Built with Next.js, Firebase, and Google's Genkit, it provides a suite of intelligent tools for attendance tracking, assignment management, and personalized academic planning.
 
-##Idea
+## Idea
 
 Attendance & Beyond, this means that this web application doesn't only focus on attendance but also on the things beyond it which are required for our career growth and helps the users in personalization and effectively planning their day to day life and using there free time productively.
 
