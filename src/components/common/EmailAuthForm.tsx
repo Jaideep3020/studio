@@ -46,9 +46,11 @@ export function EmailAuthForm() {
           setError('The password is too weak. Please use at least 6 characters.');
           break;
         case 'auth/user-not-found':
+          setError('No account found with this email address. Please sign up or try a different email.');
+          break;
         case 'auth/wrong-password':
         case 'auth/invalid-credential':
-          setError('Invalid email or password. Please try again.');
+          setError('The email or password you entered is incorrect. Please try again.');
           break;
         case 'auth/network-request-failed':
             setError('Network error. Please check your internet connection.');
