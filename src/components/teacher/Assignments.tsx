@@ -1,14 +1,56 @@
+
+'use client';
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookMarked, PlusCircle } from "lucide-react";
+import { BookMarked, PlusCircle, LoaderCircle } from "lucide-react";
+import { CreateAssignmentDialog } from "./CreateAssignmentDialog";
+import { useClasses } from "@/context/ClassContext";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, query, where, getDocs } from "firebase/firestore";
+import type { Assignment, Submission } from "@/lib/types";
 
-const assignmentsData = [
-  { title: "Chapter 3: Thermodynamics Worksheet", class: "Grade 10A", dueDate: "Oct 25, 2024", submissions: 18, total: 25 },
-  { title: "Algebra II: Problem Set 5", class: "Grade 11B", dueDate: "Oct 28, 2024", submissions: 10, total: 22 },
-  { title: "Lab Report: Titration Experiment", class: "Grade 12C", dueDate: "Nov 2, 2024", submissions: 0, total: 20 },
-];
+interface EnrichedAssignment extends Assignment {
+  submissionCount: number;
+}
 
 export function Assignments() {
+  const { classes } = useClasses();
+  const [assignments, setAssignments] = useState<EnrichedAssignment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (classes.length === 0) {
+      setIsLoading(false);
+      return;
+    }
+    
+    setIsLoading(true);
+    const classIds = classes.map(c => c.id);
+    const assignmentsQuery = query(collection(db, "assignments"), where('classId', 'in', classIds));
+
+    const unsubscribe = onSnapshot(assignmentsQuery, async (snapshot) => {
+      const assignmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Assignment));
+      
+      const enrichedAssignments = await Promise.all(
+        assignmentsData.map(async (assignment) => {
+          const submissionsQuery = query(collection(db, "submissions"), where('assignmentId', '==', assignment.id));
+          const submissionsSnapshot = await getDocs(submissionsQuery);
+          return { ...assignment, submissionCount: submissionsSnapshot.size };
+        })
+      );
+      
+      setAssignments(enrichedAssignments);
+      setIsLoading(false);
+    }, (error) => {
+      console.error("Error fetching assignments: ", error);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [classes]);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -16,29 +58,40 @@ export function Assignments() {
             <CardTitle className="font-headline">Assignments</CardTitle>
             <CardDescription>View existing assignments and create new ones.</CardDescription>
         </div>
-        <Button size="sm">
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Create New
-        </Button>
+        <CreateAssignmentDialog classes={classes}>
+          <Button size="sm">
+            <PlusCircle className="h-4 w-4 mr-2" />
+            Create New
+          </Button>
+        </CreateAssignmentDialog>
       </CardHeader>
       <CardContent>
-        <ul className="space-y-4">
-          {assignmentsData.map((assignment, index) => (
-            <li key={index} className="flex items-center justify-between p-3 rounded-md bg-secondary/50">
-              <div className="flex items-center gap-4">
-                <BookMarked className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="font-medium">{assignment.title}</p>
-                  <p className="text-sm text-muted-foreground">{assignment.class} &bull; Due: {assignment.dueDate}</p>
+        {isLoading ? (
+          <div className="flex items-center justify-center gap-2 text-muted-foreground py-12">
+            <LoaderCircle className="w-6 h-6 animate-spin" />
+            <p>Loading assignments...</p>
+          </div>
+        ) : assignments.length === 0 ? (
+          <p className="text-center text-muted-foreground py-12">No assignments created yet.</p>
+        ) : (
+          <ul className="space-y-4">
+            {assignments.map((assignment) => (
+              <li key={assignment.id} className="flex items-center justify-between p-3 rounded-md bg-secondary/50">
+                <div className="flex items-center gap-4">
+                  <BookMarked className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="font-medium">{assignment.title}</p>
+                    <p className="text-sm text-muted-foreground">{assignment.className} &bull; Due: {assignment.dueDate.toLocaleDateString()}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="text-right">
-                <p className="font-semibold">{assignment.submissions}/{assignment.total}</p>
-                <p className="text-sm text-muted-foreground">Submissions</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+                <div className="text-right">
+                  <p className="font-semibold">{assignment.submissionCount}</p>
+                  <p className="text-sm text-muted-foreground">Submissions</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </CardContent>
     </Card>
   );

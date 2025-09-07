@@ -43,7 +43,28 @@ export interface QuizSubmission {
 }
 
 export interface Class {
-  id: string;
+  id:string;
   name: string;
   subject: string;
+}
+
+export interface Assignment {
+  id: string;
+  classId: string;
+  className: string;
+  title: string;
+  description: string;
+  dueDate: Date;
+  createdAt: Date;
+}
+
+export interface Submission {
+  id: string;
+  assignmentId: string;
+  studentId: string;
+  studentName: string;
+  submittedAt: Date;
+  status: 'Pending' | 'Submitted' | 'Graded';
+  grade?: string; // e.g., 'A+', '85/100'
+  fileUrl?: string; // Link to the uploaded file
 }
