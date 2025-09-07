@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { db } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
-const REGENERATION_INTERVAL_MS = 10000;
+const REGENERATION_INTERVAL_MS = 5000;
 
 interface QrCodeGeneratorProps {
     onQrCodeGenerated: (lecture: Lecture, qrCodeDataUri: string) => void;
