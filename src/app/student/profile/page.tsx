@@ -1,43 +1,84 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/common/Header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Save, ArrowLeft } from 'lucide-react';
+import { Save, ArrowLeft, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
-
-// This is a mock implementation. In a real app, you'd fetch/save this to a database.
-const MOCK_USER_PROFILE = {
-  name: 'Alex Doe',
-  email: 'alex.doe@example.com',
-  goal: 'Prepare for GATE 2026',
-};
+import { auth, db } from '@/lib/firebase';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 export default function StudentProfilePage() {
-  const [goal, setGoal] = useState(MOCK_USER_PROFILE.goal);
+  const [user, setUser] = useState<User | null>(null);
+  const [goal, setGoal] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const { toast } = useToast();
 
-  const handleGoalSave = (e: React.FormEvent) => {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        // Fetch user data from Firestore
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          setGoal(userData.goal || '');
+        }
+      } else {
+        // Handle user not logged in case
+        setUser(null);
+      }
+      setIsPageLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleGoalSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in to save a goal.' });
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate saving to a database
-    setTimeout(() => {
-      MOCK_USER_PROFILE.goal = goal; // Update mock data
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      await updateDoc(userDocRef, { goal });
+      
       setIsLoading(false);
       toast({
         title: 'Goal Saved!',
         description: 'Your academic goal has been updated successfully.',
         className: 'bg-success text-success-foreground',
       });
-    }, 1000);
+    } catch (error) {
+        console.error("Error saving goal: ", error);
+        setIsLoading(false);
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not save your goal. Please try again.' });
+    }
   };
+  
+  if (isPageLoading) {
+    return (
+        <div className="flex min-h-screen w-full flex-col">
+            <Header role="Student" />
+            <main className="flex flex-1 flex-col items-center justify-center gap-4 p-4 md:gap-8 md:p-8">
+                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+                <p className="text-muted-foreground">Loading profile...</p>
+            </main>
+        </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -62,11 +103,11 @@ export default function StudentProfilePage() {
             <form onSubmit={handleGoalSave} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
-                <Input id="name" value={MOCK_USER_PROFILE.name} disabled />
+                <Input id="name" value={user?.displayName || ''} disabled />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" value={MOCK_USER_PROFILE.email} disabled />
+                <Input id="email" type="email" value={user?.email || ''} disabled />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="goal">My Academic Goal</Label>
