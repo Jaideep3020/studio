@@ -21,12 +21,12 @@ export default function QrCodePage() {
 
   const handleSessionStart = (lecture: Lecture, dataUri: string) => {
     if (activeLectureId !== lecture.id) {
-        setActiveLectureId(lecture.id);
-        setActiveLectureDescription(lecture.description);
-        setAttendedStudents([]); // Reset for a new session
+      setActiveLectureId(lecture.id);
+      setActiveLectureDescription(lecture.description);
+      setAttendedStudents([]); // Reset for a new session
 
-        const selectedClass = classes.find(c => c.name === lecture.description.split(' - ')[0]);
-        setTotalStudents(selectedClass ? selectedClass.students.length : 0);
+      // Hypothetically set total students to 25
+      setTotalStudents(25);
     }
     setQrCodeDataUri(dataUri);
   };
