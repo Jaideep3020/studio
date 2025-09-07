@@ -8,7 +8,7 @@ import { BookMarked, PlusCircle, LoaderCircle } from "lucide-react";
 import { CreateAssignmentDialog } from "./CreateAssignmentDialog";
 import { useClasses } from "@/context/ClassContext";
 import { db } from "@/lib/firebase";
-import { collection, onSnapshot, query, where, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, query, where, getDocs, Timestamp } from "firebase/firestore";
 import type { Assignment, Submission } from "@/lib/types";
 
 interface EnrichedAssignment extends Assignment {
@@ -23,6 +23,7 @@ export function Assignments() {
   useEffect(() => {
     if (classes.length === 0) {
       setIsLoading(false);
+      setAssignments([]);
       return;
     }
     
@@ -31,7 +32,14 @@ export function Assignments() {
     const assignmentsQuery = query(collection(db, "assignments"), where('classId', 'in', classIds));
 
     const unsubscribe = onSnapshot(assignmentsQuery, async (snapshot) => {
-      const assignmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Assignment));
+      const assignmentsData = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return { 
+          id: doc.id, 
+          ...data,
+          dueDate: (data.dueDate as Timestamp).toDate()
+        } as Assignment
+      });
       
       const enrichedAssignments = await Promise.all(
         assignmentsData.map(async (assignment) => {
