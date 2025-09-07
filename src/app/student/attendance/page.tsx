@@ -40,7 +40,7 @@ export default function AttendancePage() {
   useEffect(() => {
     if (!currentUser) {
       // If there is no user, don't attempt to query.
-      if (!isLoading) setIsLoading(true); // Reset loading state if user logs out.
+      setIsLoading(false);
       setAttendanceRecords([]); // Clear records.
       return;
     }
@@ -80,7 +80,7 @@ export default function AttendancePage() {
 
     // Clean up the listener when the component unmounts
     return () => unsubscribeFirestore();
-  }, [currentUser, isLoading]);
+  }, [currentUser]);
 
   return (
     <div className="flex min-h-screen w-full flex-col">
