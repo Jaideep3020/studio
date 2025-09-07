@@ -8,7 +8,7 @@ import { CheckSquare, ArrowLeft, LoaderCircle, CalendarDays } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
-import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import type { Student } from '@/lib/types';
 
 // Mock student data, assuming this is the logged-in student.
@@ -32,8 +32,7 @@ export default function AttendancePage() {
     // is present in the 'presentStudents' array.
     const q = query(
       collection(db, 'attendance'),
-      where('presentStudents', 'array-contains', { id: MOCK_STUDENT.id, name: MOCK_STUDENT.name }),
-      orderBy('createdAt', 'desc') // Show the most recent attendance first
+      where('presentStudents', 'array-contains', { id: MOCK_STUDENT.id, name: MOCK_STUDENT.name })
     );
 
     // onSnapshot listens for real-time updates.
@@ -48,6 +47,10 @@ export default function AttendancePage() {
           createdAt: data.createdAt.toDate(),
         });
       });
+      
+      // Sort the records by date on the client-side to avoid the composite index requirement.
+      records.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      
       setAttendanceRecords(records);
       setIsLoading(false);
     }, (error) => {
