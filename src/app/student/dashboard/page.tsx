@@ -2,7 +2,6 @@
 
 import { Header } from '@/components/common/Header';
 import { Attendance } from '@/components/student/Attendance';
-import { RevisionTopics } from '@/components/student/RevisionTopics';
 import { StudentAssignments } from '@/components/student/StudentAssignments';
 import { StudentGoals } from '@/components/student/StudentGoals';
 import { StudentQuizzes } from '@/components/student/StudentQuizzes';
@@ -20,13 +19,10 @@ export default function StudentDashboard() {
           <Attendance />
           <UpcomingClasses />
         </div>
-        <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 md:gap-8 lg:grid-cols-1 xl:grid-cols-2">
           <div className="xl:col-span-2 grid auto-rows-max items-start gap-4 md:gap-8">
             <StudentQuizzes />
             <StudentAssignments />
-          </div>
-          <div className="grid auto-rows-max items-start gap-4 md:gap-8">
-            <RevisionTopics />
           </div>
         </div>
       </main>
