@@ -12,8 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { db } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
-const REGENERATION_INTERVAL_MS = 10000;
-
 interface QrCodeGeneratorProps {
     onSessionStart: (lecture: Lecture, qrCodeDataUri: string) => void;
     activeLectureId: string | null;
@@ -30,33 +28,16 @@ export function QrCodeGenerator({ onSessionStart, activeLectureId }: QrCodeGener
   const [lectureDescription, setLectureDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const regenerationInterval = useRef<NodeJS.Timeout | null>(null);
-  const activeLectureRef = useRef<{ id: string; description: string } | null>(null);
 
-
-  const stopRegeneration = () => {
-    if (regenerationInterval.current) {
-      clearInterval(regenerationInterval.current);
-      regenerationInterval.current = null;
-    }
-  };
-
-  const generateAndDisplayQrCode = async () => {
-    const currentLecture = activeLectureRef.current;
-    if (!currentLecture) return;
-
+  const generateAndDisplayQrCode = async (lecture: Lecture) => {
     try {
       const timestamp = Date.now();
-      const lecturePayload = { id: currentLecture.id, description: currentLecture.description, timestamp };
-      
+      const lecturePayload = { id: lecture.id, description: lecture.description, timestamp };
       const qrCodeDataUri = await QRCode.toDataURL(JSON.stringify(lecturePayload));
-      
-      onSessionStart(currentLecture, qrCodeDataUri);
-
+      onSessionStart(lecture, qrCodeDataUri);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
       setError(`Failed to generate QR code: ${errorMessage}`);
-      stopRegeneration();
       console.error(e);
     }
   };
@@ -70,14 +51,11 @@ export function QrCodeGenerator({ onSessionStart, activeLectureId }: QrCodeGener
     
     setIsLoading(true);
     setError(null);
-    stopRegeneration(); // Stop any previous timers
 
     try {
       const initialTimestamp = Date.now();
       const lectureId = `lecture_${initialTimestamp}`;
       const newLecture = { id: lectureId, description: lectureDescription };
-      activeLectureRef.current = newLecture;
-
 
       // Create a document in Firestore for this attendance session
       await setDoc(doc(db, 'attendance', lectureId), {
@@ -87,12 +65,7 @@ export function QrCodeGenerator({ onSessionStart, activeLectureId }: QrCodeGener
         presentStudents: [],
       });
       
-      await generateAndDisplayQrCode();
-      
-      // Start the regeneration interval
-      regenerationInterval.current = setInterval(() => {
-        generateAndDisplayQrCode();
-      }, REGENERATION_INTERVAL_MS);
+      await generateAndDisplayQrCode(newLecture);
 
     } catch (e) {
       setError('An error occurred while starting the session. Please try again.');
@@ -101,13 +74,6 @@ export function QrCodeGenerator({ onSessionStart, activeLectureId }: QrCodeGener
       setIsLoading(false);
     }
   };
-
-  // Cleanup interval on component unmount
-  useEffect(() => {
-    return () => {
-      stopRegeneration();
-    };
-  }, []);
 
   return (
     <Card>
@@ -147,7 +113,7 @@ export function QrCodeGenerator({ onSessionStart, activeLectureId }: QrCodeGener
                 <CheckCircle className="h-4 w-4 text-success" />
                 <AlertTitle className="text-success">Session Active</AlertTitle>
                 <AlertDescription>
-                   An attendance session for "{lectureDescription}" is currently active. The QR code will refresh automatically.
+                   An attendance session for "{lectureDescription}" is currently active.
                 </AlertDescription>
             </Alert>
         )}

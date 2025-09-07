@@ -13,8 +13,6 @@ import { markAttendance } from '@/ai/flows/mark-attendance';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 
-const QR_CODE_VALIDITY_SECONDS = 10; // The QR code is valid for 10 seconds
-
 type ScanResult = 'success' | 'failure' | 'scanning' | 'idle' | 'no-user';
 
 export function Attendance() {
@@ -133,12 +131,7 @@ export function Attendance() {
                                       typeof parsedData.id === 'string' && parsedData.id.startsWith('lecture_');
                   
                   if (isDataValid) {
-                    const timeSinceGenerated = (Date.now() - parsedData.timestamp) / 1000;
-                    if (timeSinceGenerated > QR_CODE_VALIDITY_SECONDS) {
-                      handleScanFailure('This QR code has expired. Please scan the latest one.');
-                    } else {
-                      handleScanSuccess(parsedData as LecturePayload);
-                    }
+                    handleScanSuccess(parsedData as LecturePayload);
                   } else {
                     handleScanFailure('This QR code is not a valid attendance code.');
                   }
