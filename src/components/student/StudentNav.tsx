@@ -1,7 +1,8 @@
+
 'use client';
 
 import Link from 'next/link';
-import { LayoutDashboard, BookText, BarChart, Settings, GraduationCap, MessageSquareHeart, BookOpen } from 'lucide-react';
+import { LayoutDashboard, BookText, BarChart, Settings, GraduationCap, MessageSquareHeart, BookOpen, CalendarCheck } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +10,7 @@ const navItems = [
   { href: '/student/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/student/attendance', icon: BookText, label: 'Attendance' },
   { href: '/student/assignments', icon: BookOpen, label: 'Assignments' },
+  { href: '/student/my-planner', icon: CalendarCheck, label: 'My Planner' },
   { href: '/student/reports', icon: BarChart, label: 'Reports' },
   { href: '/student/career-guidance', icon: MessageSquareHeart, label: 'AI Career Chat' },
   { href: '/student/profile', icon: Settings, label: 'Settings' },
