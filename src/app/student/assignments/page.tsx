@@ -8,19 +8,11 @@ import { BookOpen, ArrowLeft, LoaderCircle, FileUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { db, auth } from '@/lib/firebase';
-import { collection, query, where, onSnapshot, getDocs, collectionGroup } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs, Timestamp } from 'firebase/firestore';
 import type { Assignment, Submission } from '@/lib/types';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { Badge } from '@/components/ui/badge';
 import { SubmitAssignmentDialog } from '@/components/student/SubmitAssignmentDialog';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 
 interface EnrichedAssignment extends Assignment {
@@ -45,25 +37,32 @@ export default function AssignmentsPage() {
   useEffect(() => {
     if (!currentUser) return;
 
-    // First, find out which classes the student is in.
-    // This is a simplified approach. A real app might have a 'classes' subcollection on the user doc.
-    const findStudentClasses = async () => {
-      setIsLoading(true);
-      const classesCollectionRef = collection(db, 'classes');
-      const q = query(classesCollectionRef, where('studentIds', 'array-contains', currentUser.uid));
-      const querySnapshot = await getDocs(q);
+    setIsLoading(true);
+    // First, find out which classes the student is in by looking for their UID in the studentIds array.
+    const classesQuery = query(collection(db, 'classes'), where('studentIds', 'array-contains', currentUser.uid));
+    
+    const unsubscribeClasses = onSnapshot(classesQuery, (querySnapshot) => {
       const studentClassIds = querySnapshot.docs.map(doc => doc.id);
       
       if (studentClassIds.length === 0) {
+        setAssignments([]);
         setIsLoading(false);
-        return () => {};
+        return;
       }
 
       // Now, listen for assignments in those classes.
       const assignmentsQuery = query(collection(db, 'assignments'), where('classId', 'in', studentClassIds));
       
       const unsubscribeAssignments = onSnapshot(assignmentsQuery, async (snapshot) => {
-        const assignmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Assignment));
+        const assignmentsData = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return { 
+                id: doc.id, 
+                ...data,
+                dueDate: (data.dueDate as Timestamp).toDate(),
+                createdAt: (data.createdAt as Timestamp).toDate(),
+            } as Assignment
+        });
         
         // For each assignment, check for a submission from the current user
         const enrichedAssignments = await Promise.all(
@@ -89,19 +88,13 @@ export default function AssignmentsPage() {
         setIsLoading(false);
       });
       
-      return unsubscribeAssignments;
-    };
+      return () => unsubscribeAssignments();
+    }, (error) => {
+        console.error("Error fetching student classes: ", error);
+        setIsLoading(false);
+    });
 
-    const promise = findStudentClasses();
-    
-    // Return a cleanup function
-    return () => {
-      promise.then(cleanup => {
-        if (typeof cleanup === 'function') {
-          cleanup();
-        }
-      });
-    };
+    return () => unsubscribeClasses();
   }, [currentUser]);
 
   const getStatusBadge = (assignment: EnrichedAssignment) => {
@@ -164,8 +157,8 @@ export default function AssignmentsPage() {
                                   Due: {new Date(assignment.dueDate).toLocaleDateString()}
                                 </p>
                             </div>
-                            {!assignment.submission && (
-                              <SubmitAssignmentDialog assignment={assignment} student={currentUser!}>
+                            {!assignment.submission && currentUser && (
+                              <SubmitAssignmentDialog assignment={assignment} student={currentUser}>
                                   <Button>
                                     <FileUp className="mr-2 h-4 w-4" />
                                     Submit Work

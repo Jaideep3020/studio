@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -8,49 +9,73 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { UserPlus, LoaderCircle } from 'lucide-react';
+import { UserPlus, LoaderCircle, AlertCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useClasses } from '@/context/ClassContext';
-import type { Student } from '@/lib/types';
-
+import { db } from '@/lib/firebase';
+import { collection, query, where, getDocs, doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export default function EnrollStudentPage() {
-  const [studentName, setStudentName] = useState('');
   const [studentEmail, setStudentEmail] = useState('');
   const [selectedClassId, setSelectedClassId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const { classes, addStudentToClass } = useClasses();
 
   const handleEnrollStudent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!studentName || !studentEmail || !selectedClassId) {
+    if (!studentEmail || !selectedClassId) {
       toast({
         variant: 'destructive',
         title: 'Missing Information',
-        description: 'Please fill out all fields to enroll a student.',
+        description: 'Please provide a student email and select a class.',
       });
       return;
     }
     
     setIsLoading(true);
+    setError(null);
 
-    // Simulate an API call to enroll the student
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    const newStudent: Omit<Student, 'id'> = { name: studentName, email: studentEmail };
-    addStudentToClass(selectedClassId, newStudent);
+    try {
+      // 1. Find the student user by their email
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', studentEmail), where('role', '==', 'student'));
+      const querySnapshot = await getDocs(q);
 
-    setIsLoading(false);
-    setStudentName('');
-    setStudentEmail('');
-    setSelectedClassId('');
-    
-    toast({
-      title: 'Student Enrolled!',
-      description: `${studentName} has been successfully enrolled.`,
-      className: 'bg-success text-success-foreground',
-    });
+      if (querySnapshot.empty) {
+        throw new Error('No student found with this email address.');
+      }
+
+      const studentDoc = querySnapshot.docs[0];
+      const studentData = studentDoc.data();
+      const studentId = studentDoc.id;
+
+      // 2. Add the student's UID to the class's studentIds array in Firestore
+      const classRef = doc(db, 'classes', selectedClassId);
+      await updateDoc(classRef, {
+        studentIds: arrayUnion(studentId)
+      });
+      
+      // 3. (Optional) Update local context state if needed for immediate UI updates
+      addStudentToClass(selectedClassId, { id: studentId, name: studentData.name, email: studentData.email });
+
+      setIsLoading(false);
+      setStudentEmail('');
+      setSelectedClassId('');
+      
+      toast({
+        title: 'Student Enrolled!',
+        description: `${studentData.name} has been successfully enrolled.`,
+        className: 'bg-success text-success-foreground',
+      });
+
+    } catch (err: any) {
+      console.error("Enrollment failed: ", err);
+      setError(err.message || 'An unexpected error occurred.');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -60,28 +85,25 @@ export default function EnrollStudentPage() {
         <Header role="Teacher" />
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 bg-background">
           <div className="mx-auto grid w-full max-w-2xl gap-2">
-            <h1 className="text-3xl font-semibold">Enroll New Student</h1>
+            <h1 className="text-3xl font-semibold">Enroll Student</h1>
           </div>
           <div className="mx-auto grid w-full max-w-2xl items-start gap-6">
             <Card>
               <CardHeader>
                 <CardTitle className="font-headline">Student Enrollment Form</CardTitle>
                 <CardDescription>
-                  Enter the student's details and select the class to enroll them in.
+                  Enter the student's email and select the class to enroll them in. The student must have a ClassZen account.
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                 {error && (
+                  <Alert variant="destructive" className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Enrollment Failed</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
                 <form onSubmit={handleEnrollStudent} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="student-name">Student Full Name</Label>
-                    <Input
-                      id="student-name"
-                      value={studentName}
-                      onChange={(e) => setStudentName(e.target.value)}
-                      placeholder="e.g., Jane Doe"
-                      required
-                    />
-                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="student-email">Student Email Address</Label>
                     <Input

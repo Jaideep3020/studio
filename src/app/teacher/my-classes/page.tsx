@@ -1,28 +1,20 @@
+
 'use client';
 
 import { Header } from '@/components/common/Header';
 import { AddClassDialog } from '@/components/teacher/AddClassDialog';
-import { AddStudentDialog } from '@/components/teacher/AddStudentDialog';
 import { TeacherNav } from '@/components/teacher/TeacherNav';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Users, PlusCircle, School, BookOpen, Trash2, ChevronDown } from 'lucide-react';
-import type { Class, Student } from '@/lib/types';
+import type { Student } from '@/lib/types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useClasses } from '@/context/ClassContext';
+import Link from 'next/link';
 
 export default function MyClassesPage() {
-  const { classes, addClass, addStudentToClass, removeStudentFromClass } = useClasses();
-
-  const handleAddClass = (newClass: Omit<Class, 'id'>) => {
-    addClass(newClass);
-  };
-  
-  const handleAddStudent = (classId: string, studentName: string, studentEmail: string) => {
-    const newStudent: Omit<Student, 'id'> = { name: studentName, email: studentEmail };
-    addStudentToClass(classId, newStudent);
-  };
+  const { classes, removeStudentFromClass } = useClasses();
   
   const handleDropStudent = (classId: string, studentId: string) => {
     removeStudentFromClass(classId, studentId);
@@ -45,7 +37,7 @@ export default function MyClassesPage() {
                             View and manage your classes and student rosters.
                         </CardDescription>
                     </div>
-                    <AddClassDialog onClassAdded={handleAddClass}>
+                    <AddClassDialog>
                       <Button>
                           <PlusCircle className="mr-2 h-4 w-4"/>
                           Add New Class
@@ -60,7 +52,7 @@ export default function MyClassesPage() {
                             <p className="mt-2 text-sm">
                                 You haven't added any classes yet.
                             </p>
-                            <AddClassDialog onClassAdded={handleAddClass}>
+                            <AddClassDialog>
                               <Button className="mt-4">
                                   <PlusCircle className="mr-2 h-4 w-4" />
                                   Add Your First Class
@@ -113,12 +105,12 @@ export default function MyClassesPage() {
                                   </AccordionContent>
                                 </AccordionItem>
                                 <div className="mt-4 flex gap-2">
-                                  <AddStudentDialog classId={classItem.id} onStudentAdded={handleAddStudent}>
-                                    <Button size="sm" className="w-full">
+                                  <Button asChild size="sm" className="w-full">
+                                    <Link href="/teacher/enroll-student">
                                       <PlusCircle className="mr-2 h-4 w-4" />
-                                      Add Student
-                                    </Button>
-                                  </AddStudentDialog>
+                                      Enroll Student
+                                    </Link>
+                                  </Button>
                                 </div>
                               </CardContent>
                             </Card>

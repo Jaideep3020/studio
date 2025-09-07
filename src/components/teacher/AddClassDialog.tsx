@@ -16,39 +16,58 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle } from 'lucide-react';
-import type { Class } from '@/lib/types';
+import { db } from '@/lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
+import { useClasses } from '@/context/ClassContext';
 
 interface AddClassDialogProps {
   children: React.ReactNode;
-  onClassAdded: (newClass: Omit<Class, 'id' | 'studentCount'>) => void;
 }
 
-export function AddClassDialog({ children, onClassAdded }: AddClassDialogProps) {
+export function AddClassDialog({ children }: AddClassDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [subject, setSubject] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { addClass } = useClasses();
 
   const handleAddClass = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate saving to a database
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    onClassAdded({ name, subject });
+    try {
+      const newClassData = {
+        name,
+        subject,
+        students: [], // Kept for local context, though Firestore will use studentIds
+        studentIds: [], // The source of truth for enrollments
+      };
+      
+      const docRef = await addDoc(collection(db, 'classes'), newClassData);
 
-    setIsLoading(false);
-    setOpen(false); // Close the dialog
-    setName(''); // Reset form
-    setSubject('');   // Reset form
+      // Update local state via context
+      addClass({ id: docRef.id, ...newClassData });
 
-    toast({
-      title: 'Class Added!',
-      description: `The class "${name}" has been created successfully.`,
-      className: 'bg-success text-success-foreground',
-    });
+      setIsLoading(false);
+      setOpen(false); // Close the dialog
+      setName(''); // Reset form
+      setSubject('');   // Reset form
+
+      toast({
+        title: 'Class Added!',
+        description: `The class "${name}" has been created successfully.`,
+        className: 'bg-success text-success-foreground',
+      });
+    } catch (error) {
+      console.error("Error adding class: ", error);
+      setIsLoading(false);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not add the class. Please try again.',
+      });
+    }
   };
 
   return (
