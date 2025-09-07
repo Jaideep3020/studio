@@ -4,12 +4,13 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookMarked, PlusCircle, LoaderCircle } from "lucide-react";
+import { BookMarked, PlusCircle, LoaderCircle, ChevronRight } from "lucide-react";
 import { CreateAssignmentDialog } from "./CreateAssignmentDialog";
 import { useClasses } from "@/context/ClassContext";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, query, where, getDocs, Timestamp } from "firebase/firestore";
 import type { Assignment, Submission } from "@/lib/types";
+import Link from "next/link";
 
 interface EnrichedAssignment extends Assignment {
   submissionCount: number;
@@ -82,20 +83,25 @@ export function Assignments() {
         ) : assignments.length === 0 ? (
           <p className="text-center text-muted-foreground py-12">No assignments created yet.</p>
         ) : (
-          <ul className="space-y-4">
+          <ul className="space-y-2">
             {assignments.map((assignment) => (
-              <li key={assignment.id} className="flex items-center justify-between p-3 rounded-md bg-secondary/50">
-                <div className="flex items-center gap-4">
-                  <BookMarked className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="font-medium">{assignment.title}</p>
-                    <p className="text-sm text-muted-foreground">{assignment.className} &bull; Due: {assignment.dueDate.toLocaleDateString()}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold">{assignment.submissionCount}</p>
-                  <p className="text-sm text-muted-foreground">Submissions</p>
-                </div>
+              <li key={assignment.id}>
+                 <Link href={`/teacher/assignments/${assignment.id}`} className="flex items-center justify-between p-3 rounded-md bg-secondary/50 hover:bg-secondary/80 transition-colors group">
+                    <div className="flex items-center gap-4">
+                        <BookMarked className="h-5 w-5 text-primary" />
+                        <div>
+                            <p className="font-medium">{assignment.title}</p>
+                            <p className="text-sm text-muted-foreground">{assignment.className} &bull; Due: {assignment.dueDate.toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="text-right">
+                            <p className="font-semibold">{assignment.submissionCount}</p>
+                            <p className="text-sm text-muted-foreground">Submissions</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                    </div>
+                 </Link>
               </li>
             ))}
           </ul>
