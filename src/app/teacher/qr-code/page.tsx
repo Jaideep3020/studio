@@ -9,21 +9,26 @@ import { AttendanceDashboard } from '@/components/teacher/AttendanceDashboard';
 import type { Lecture, Student } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
-
-// Mock total students for the selected class
-const MOCK_TOTAL_STUDENTS = 25;
+import { useClasses } from '@/context/ClassContext';
 
 export default function QrCodePage() {
   const [activeLecture, setActiveLecture] = useState<Lecture | null>(null);
   const [qrCodeDataUri, setQrCodeDataUri] = useState<string | null>(null);
   const [attendedStudents, setAttendedStudents] = useState<Student[]>([]);
+  const { classes } = useClasses();
+  const [totalStudents, setTotalStudents] = useState(0);
 
   const handleQrCodeGenerated = (lecture: Lecture, dataUri: string) => {
-    // Only reset the student list if it's a new lecture session
+    // Only set a new active lecture if the ID is different.
     if (activeLecture?.id !== lecture.id) {
+        setActiveLecture(lecture);
+        // Reset student list for new session
         setAttendedStudents([]);
+        
+        // Find the selected class to get total student count
+        const selectedClass = classes.find(c => c.name === lecture.description.split(' - ')[0]);
+        setTotalStudents(selectedClass ? selectedClass.students.length : 0);
     }
-    setActiveLecture(lecture);
     setQrCodeDataUri(dataUri);
   };
   
@@ -57,7 +62,7 @@ export default function QrCodePage() {
             <QrCodeGenerator onQrCodeGenerated={handleQrCodeGenerated} activeLecture={activeLecture} />
             <AttendanceDashboard 
               attendedStudents={attendedStudents}
-              totalStudents={MOCK_TOTAL_STUDENTS}
+              totalStudents={totalStudents}
               qrCodeDataUri={qrCodeDataUri}
               activeLectureDescription={activeLecture?.description}
             />
