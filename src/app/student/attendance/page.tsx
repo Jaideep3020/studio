@@ -7,13 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { CheckSquare, ArrowLeft, LoaderCircle, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { db } from '@/lib/firebase';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db, auth } from '@/lib/firebase';
+import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import type { Student } from '@/lib/types';
+import { onAuthStateChanged, User } from 'firebase/auth';
 
-// Mock student data, assuming this is the logged-in student.
-// In a real app, you would get this from your authentication context.
-const MOCK_STUDENT: Student = { id: 'student_123', name: 'Alex Doe', email: 'alex.doe@example.com' };
 
 interface AttendanceRecord {
   id: string;
@@ -24,19 +22,40 @@ interface AttendanceRecord {
 export default function AttendancePage() {
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+        setIsLoading(false);
+      }
+    });
+
+    return () => unsubscribeAuth();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser) {
+      // If there is no user, don't attempt to query.
+      if (!isLoading) setIsLoading(true); // Reset loading state if user logs out.
+      setAttendanceRecords([]); // Clear records.
+      return;
+    }
+
     setIsLoading(true);
     
-    // This query looks for all attendance documents where the student's ID
+    // This query looks for all attendance documents where the student's ID and name
     // is present in the 'presentStudents' array.
     const q = query(
       collection(db, 'attendance'),
-      where('presentStudents', 'array-contains', { id: MOCK_STUDENT.id, name: MOCK_STUDENT.name })
+      where('presentStudents', 'array-contains', { id: currentUser.uid, name: currentUser.displayName })
     );
 
     // onSnapshot listens for real-time updates.
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    const unsubscribeFirestore = onSnapshot(q, (querySnapshot) => {
       const records: AttendanceRecord[] = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
@@ -60,8 +79,8 @@ export default function AttendancePage() {
     });
 
     // Clean up the listener when the component unmounts
-    return () => unsubscribe();
-  }, []);
+    return () => unsubscribeFirestore();
+  }, [currentUser, isLoading]);
 
   return (
     <div className="flex min-h-screen w-full flex-col">

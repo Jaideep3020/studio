@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { CheckCircle, AlertTriangle, Camera, RefreshCw, XCircle, QrCode } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Camera, RefreshCw, XCircle, QrCode, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,22 +10,37 @@ import jsQR from 'jsqr';
 import { Student, LecturePayload } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { markAttendance } from '@/ai/flows/mark-attendance';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, User } from 'firebase/auth';
 
-// Mock student data for this simulation
-const MOCK_STUDENT: Student = { id: 'student_123', name: 'Alex Doe', email: 'alex.doe@example.com' };
 const QR_CODE_VALIDITY_SECONDS = 60;
 
-type ScanResult = 'success' | 'failure' | 'scanning' | 'idle';
+type ScanResult = 'success' | 'failure' | 'scanning' | 'idle' | 'no-user';
 
 export function Attendance() {
   const [scanResult, setScanResult] = useState<ScanResult>('idle');
   const [scannedData, setScannedData] = useState<LecturePayload | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameId = useRef<number>();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+        setScanResult('no-user');
+      }
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const stopCamera = useCallback(() => {
     if (animationFrameId.current) {
@@ -50,11 +65,16 @@ export function Attendance() {
   }, [stopCamera, toast]);
 
   const handleScanSuccess = useCallback(async (data: LecturePayload) => {
+    if (!currentUser || !currentUser.displayName) {
+      handleScanFailure('Could not verify your identity. Please log in again.');
+      return;
+    }
     stopCamera();
     setScannedData(data);
     
     try {
-      const result = await markAttendance({ lectureId: data.id, student: MOCK_STUDENT });
+      const studentForDb: Student = { id: currentUser.uid, name: currentUser.displayName, email: currentUser.email || '' };
+      const result = await markAttendance({ lectureId: data.id, student: studentForDb });
       
       if (result.success) {
         setScanResult('success');
@@ -71,7 +91,7 @@ export function Attendance() {
       console.error('Error calling markAttendance flow:', error);
       handleScanFailure('An error occurred while communicating with the server.');
     }
-  }, [stopCamera, toast, handleScanFailure]);
+  }, [stopCamera, toast, handleScanFailure, currentUser]);
 
   const handleTryAgain = () => {
     setScanResult('idle');
@@ -166,6 +186,21 @@ export function Attendance() {
       stopCamera();
     };
   }, [scanResult, stopCamera, toast, handleScanSuccess, handleScanFailure]);
+
+  if (authLoading) {
+     return (
+        <Card className="text-center bg-secondary border-0">
+          <CardHeader>
+            <CardTitle className="font-headline">Mark Attendance</CardTitle>
+            <CardDescription>Scan the QR code displayed by your teacher.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center justify-center gap-4 p-8">
+            <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
+            <p className="text-muted-foreground">Verifying your session...</p>
+          </CardContent>
+        </Card>
+      );
+  }
 
   return (
     <Card className="text-center bg-secondary border-0">
