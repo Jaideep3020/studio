@@ -84,20 +84,26 @@ export default function MyPlannerPage() {
 
       // Fetch assignments
       const classesQuery = query(collection(db, 'classes'), where('studentIds', 'array-contains', currentUser.uid));
-      onSnapshot(classesQuery, (querySnapshot) => {
+      const unsubscribeClasses = onSnapshot(classesQuery, (querySnapshot) => {
         const studentClassIds = querySnapshot.docs.map(doc => doc.id);
         if (studentClassIds.length > 0) {
-          const assignmentsQuery = query(collection(db, 'assignments'), where('classId', 'in', studentClassIds), where('dueDate', '>', Timestamp.now()));
-          onSnapshot(assignmentsQuery, (snapshot) => {
-            const assignmentsData = snapshot.docs.map(doc => ({
-              id: doc.id,
-              ...doc.data(),
-              dueDate: (doc.data().dueDate as Timestamp).toDate(),
-            } as Assignment));
+          const assignmentsQuery = query(collection(db, 'assignments'), where('classId', 'in', studentClassIds));
+          const unsubscribeAssignments = onSnapshot(assignmentsQuery, (snapshot) => {
+            const now = new Date();
+            const assignmentsData = snapshot.docs
+              .map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                dueDate: (doc.data().dueDate as Timestamp).toDate(),
+              } as Assignment))
+              .filter(assignment => assignment.dueDate > now); // Filter for future due dates on the client
+            
             setAssignments(assignmentsData);
           });
+          return () => unsubscribeAssignments();
         }
       });
+      return () => unsubscribeClasses();
     }
   }, [currentUser]);
 
