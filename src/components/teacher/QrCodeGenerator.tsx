@@ -2,9 +2,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
+import QRCode from 'qrcode';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { generateLectureQrCode } from '@/ai/flows/generate-lecture-qr-code';
 import { QrCode, LoaderCircle, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import type { Lecture } from '@/lib/types';
@@ -49,14 +49,10 @@ export function QrCodeGenerator({ onSessionStart, activeLectureId }: QrCodeGener
       const timestamp = Date.now();
       const lecturePayload = { id: currentLecture.id, description: currentLecture.description, timestamp };
       
-      const result = await generateLectureQrCode({ lectureDescription: lecturePayload });
+      const qrCodeDataUri = await QRCode.toDataURL(JSON.stringify(lecturePayload));
+      
+      onSessionStart(currentLecture, qrCodeDataUri);
 
-      if (result.qrCodeDataUri) {
-        // This function is now only responsible for starting the session and updating the QR URI
-        onSessionStart(currentLecture, result.qrCodeDataUri);
-      } else {
-        throw new Error('The AI did not return valid QR code data.');
-      }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
       setError(`Failed to generate QR code: ${errorMessage}`);

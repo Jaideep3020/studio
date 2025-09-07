@@ -3,13 +3,13 @@
 
 import { useState, useEffect } from 'react';
 import { Header } from '@/components/common/Header';
-import { QrCodeGenerator } from '@/components/teacher/QrCodeGenerator';
 import { TeacherNav } from '@/components/teacher/TeacherNav';
 import { AttendanceDashboard } from '@/components/teacher/AttendanceDashboard';
 import type { Lecture, Student } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { useClasses } from '@/context/ClassContext';
+import { QrCodeGenerator } from '@/components/teacher/QrCodeGenerator';
 
 export default function QrCodePage() {
   const [activeLectureId, setActiveLectureId] = useState<string | null>(null);
@@ -20,7 +20,6 @@ export default function QrCodePage() {
   const [totalStudents, setTotalStudents] = useState(0);
 
   const handleSessionStart = (lecture: Lecture, dataUri: string) => {
-    // Only update state if it's a new session
     if (activeLectureId !== lecture.id) {
         setActiveLectureId(lecture.id);
         setActiveLectureDescription(lecture.description);
@@ -69,7 +68,7 @@ export default function QrCodePage() {
               attendedStudents={attendedStudents}
               totalStudents={totalStudents}
               qrCodeDataUri={qrCodeDataUri}
-              activeLectureDescription={activeLectureDescription}
+              activeLectureDescription={activeLectureDescription || ''}
             />
           </div>
         </main>

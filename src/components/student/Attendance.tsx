@@ -13,7 +13,7 @@ import { markAttendance } from '@/ai/flows/mark-attendance';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 
-const QR_CODE_VALIDITY_SECONDS = 60;
+const QR_CODE_VALIDITY_SECONDS = 10; // The QR code is valid for 10 seconds
 
 type ScanResult = 'success' | 'failure' | 'scanning' | 'idle' | 'no-user';
 
